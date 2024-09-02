@@ -35,9 +35,9 @@ const Search = () => {
             ))}
           </div>
         </div>
-        
+        <Footer />
       </div>
-      <Footer />
+      
     </div>
   );
 };

@@ -9,6 +9,7 @@
     width: 100%;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     font-size: 14px;
+    transition: width 0.3s ease-in-out;
 }
 
 .footer p {
