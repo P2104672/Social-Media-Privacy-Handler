@@ -4,9 +4,10 @@ import Sidebar from './components/Sidebar'
 import Footer from './components/Footer'
 import Login from './components/Login'
 import {gapi} from 'gapi-script';
-
 import { useEffect } from 'react'
+import FacebookLoginAPI from './api/FacebookLoginAPI.jsx'
 
+// facebook APP id=1050996050019664
 const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
       <Sidebar />
       <h1>Homg Page</h1>
       <Login />
+      <FacebookLoginAPI />
       <Footer />
     </div>
   )
