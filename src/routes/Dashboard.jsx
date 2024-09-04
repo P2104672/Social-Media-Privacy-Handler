@@ -21,8 +21,8 @@ const Dashboard = () => {
           <p>Search, manage, and delete your posts across all platforms.</p>
         </div></Link>
         <Link to="/"><div className="dashboard-card">
-          <h3>Privacy Settings</h3>
-          <p>Adjust your privacy settings for each connected account.</p>
+          <h3>AI Detection</h3>
+          <p>Detect sensitive information in your posts.</p>
         </div></Link>
       </div>
       <Footer />

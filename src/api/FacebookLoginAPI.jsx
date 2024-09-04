@@ -1,5 +1,3 @@
-
-
 import { useState } from 'react';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import axios from 'axios';
@@ -10,10 +8,23 @@ function FacebookLoginAPI() {
   const [posts, setPosts] = useState([]);
 
   const responseFacebook = async (response) => {
-    console.log(response);
+    console.log('Facebook response:', response);
     setIsLoggedIn(true);
-    setUserData(response);
+    
+    // Fetch user profile to get email
+    const profileResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${response.accessToken}`);
+    const profileData = await profileResponse.json();
+    console.log('Profile data:', profileData);
+    
+    setUserData(profileData);
     await fetchPosts(response.accessToken);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserData(null);
+    setPosts([]);
+    // You might want to call FB.logout() here if using the Facebook SDK
   };
 
   const fetchPosts = async (token) => {
@@ -54,14 +65,22 @@ function FacebookLoginAPI() {
         onProfileSuccess={(response) => {
           console.log('Get Profile Success!', response);
         }}
+        fields="name,email,picture"
       />
     );
   }
 
+  console.log('Current userData:', userData);
+
   return (
     <div>
-      <h2>Welcome {userData.name}</h2>
-      <img src={userData.picture.data.url} alt={userData.name} />
+      <h2>Welcome {userData?.name || 'User'}</h2>
+      <p>Email: {userData?.email || 'Not available'}</p>
+      {userData?.picture?.data?.url && (
+        <img src={userData.picture.data.url} alt={userData?.name || 'User'} />
+      )}
+      <br/>
+      <button onClick={handleLogout}>Logout</button>
       <h3>Your Posts:</h3>
       {posts.map(post => (
         <div key={post.id}>
