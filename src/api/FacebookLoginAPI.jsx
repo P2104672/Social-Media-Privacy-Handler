@@ -1,11 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import axios from 'axios';
-//q
-function FacebookLoginAPI() {
+
+function FacebookLoginAPI({ onLoginSuccess }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    // Check localStorage for existing login data
+    const storedUserData = localStorage.getItem('facebookUserData');
+    if (storedUserData) {
+      const parsedUserData = JSON.parse(storedUserData);
+      setIsLoggedIn(true);
+      setUserData(parsedUserData);
+      fetchPosts(parsedUserData.accessToken);
+      
+      // Only call onLoginSuccess if it's provided
+      if (onLoginSuccess && typeof onLoginSuccess === 'function') {
+        onLoginSuccess({
+          accessToken: parsedUserData.accessToken,
+          userId: parsedUserData.id,
+          provider: 'facebook'
+        });
+      }
+    }
+  }, [onLoginSuccess]);  // Add onLoginSuccess to the dependency array
 
   const responseFacebook = async (response) => {
     console.log('Facebook response:', response);
@@ -17,6 +38,8 @@ function FacebookLoginAPI() {
     console.log('Profile data:', profileData);
     
     setUserData(profileData);
+    // Store user data in localStorage
+    localStorage.setItem('facebookUserData', JSON.stringify({...profileData, accessToken: response.accessToken}));
     await fetchPosts(response.accessToken);
   };
 
@@ -24,6 +47,8 @@ function FacebookLoginAPI() {
     setIsLoggedIn(false);
     setUserData(null);
     setPosts([]);
+    // Clear localStorage
+    localStorage.removeItem('facebookUserData');
     // You might want to call FB.logout() here if using the Facebook SDK
   };
 
@@ -94,6 +119,11 @@ function FacebookLoginAPI() {
       ))}
     </div>
   );
+}
+
+FacebookLoginAPI.propTypes = {
+  onLoginSuccess: PropTypes.func,  // Make this prop optional
 };
 
+// Export the component as default
 export default FacebookLoginAPI;

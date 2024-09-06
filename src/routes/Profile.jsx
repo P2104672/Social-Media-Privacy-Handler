@@ -1,56 +1,66 @@
 // src/routes/Profile.jsx
-// import { useEffect, useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { auth } from '../firebaseConfig';
-// import { fetchGoogleLinkedAccounts } from '../api/googleApi';
+import { useEffect, useState } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { fetchConnectedAccounts } from '../api/SocialMediaApi.jsx';
 import './Profile.css';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import firebaseApp from '../firebase'; // Import the initialized Firebase app
+
 const Profile = () => {
-  // const [user, setUser] = useState(null);
-  // const [linkedAccounts, setLinkedAccounts] = useState([]);
-  // const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [connectedAccounts, setConnectedAccounts] = useState([]); // Add this line
 
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged((user) => {
-  //     if (user) {
-  //       setUser(user);
-  //       loadLinkedAccounts(user.accessToken);
-  //     } else {
-  //       navigate('/login');
-  //     }
-  //   });
+  useEffect(() => {
+    const auth = getAuth(firebaseApp); // Pass the Firebase app to getAuth
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        loadConnectedAccounts(currentUser.uid);
+      }
+      setLoading(false);
+    });
 
-  //   return () => unsubscribe();
-  // }, [navigate]);
+    return () => unsubscribe();
+  }, []);
 
-  // const loadLinkedAccounts = async (accessToken) => {
-  //   const accounts = await fetchGoogleLinkedAccounts(accessToken);
-  //   setLinkedAccounts(accounts);
-  // };
+  const loadConnectedAccounts = async (userId) => {
+    try {
+      const accounts = await fetchConnectedAccounts(userId);
+      setConnectedAccounts(accounts);
+    } catch (error) {
+      console.error('Error fetching connected accounts:', error);
+    }
+  };
+
+  // ... existing handleSignInOrSignUp functions ...
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  console.log('Current user:', user); // Add this line for debugging
 
   return (
     <div className='profile-container'>
-      
-        <Sidebar />
-        <h1>Profile</h1>
-        {/* {user && (
+      <Sidebar />
+      <h1>Profile</h1>
+      <div className="profile">
+        {user ? (
           <>
-            <h2>Welcome, {user.displayName}!</h2>
+            <h2>Welcome, {user.displayName || 'User'}!</h2>
             <p>Email: {user.email}</p>
-            <div className="linked-accounts">
-              <h3>Linked Social Media Accounts</h3>
-              <ul>
-                {linkedAccounts.map((account, index) => (
-                  <li key={index}>{account.name}</li>
-                ))}
-              </ul>
-            </div>
+            <h3>Connected Accounts:</h3>
+            <ul>
+              {connectedAccounts.map((account, index) => (
+                <li key={index}>{account.platform}: {account.username}</li>
+              ))}
+            </ul>
           </>
-        )} */}
-        <div className="profile">
-        <p>Welcome user</p>
-        
+        ) : (
+          <p>Please sign in to view your profile.</p>
+        )}
       </div>
       <Footer />
     </div>
