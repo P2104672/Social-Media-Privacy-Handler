@@ -4,6 +4,7 @@ import Footer from './components/Footer'
 import {gapi} from 'gapi-script';
 import { useEffect } from 'react'
 import FacebookLoginAPI from './api/FacebookLoginAPI'
+import Login from './components/Login'
 // Remove this line: import { handleLoginSuccess } from './api/FacebookLoginAPI';
 
 // facebook APP id=1050996050019664
@@ -30,6 +31,7 @@ function App() {
     <div className="app-container">
       <Sidebar />
       <h1>Social Media Privacy Handler</h1>
+      <Login/>
       <FacebookLoginAPI onLoginSuccess={handleLoginSuccess} />
       <Footer />
     </div>

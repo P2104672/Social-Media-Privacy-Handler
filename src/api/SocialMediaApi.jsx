@@ -1,21 +1,43 @@
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { app } from '../firebase'; // Make sure this import points to your Firebase configuration file
 
-export const fetchConnectedAccounts = async (userId) => {
-  const db = getFirestore();
-  const userDocRef = doc(db, 'users', userId);
-  
+const db = getFirestore(app);
+
+export const fetchConnectedAccounts = async (email) => {
   try {
-    const userDoc = await getDoc(userDocRef);
-    if (userDoc.exists()) {
-      const userData = userDoc.data();
-      return userData.connectedAccounts || {};
+    const userRef = doc(db, 'users', email);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      return userSnap.data().connectedAccounts || [];
     } else {
-      console.log('No such user document!');
-      return {};
+      return [];
     }
   } catch (error) {
     console.error('Error fetching connected accounts:', error);
-    return {};
+    throw error;
+  }
+};
+
+export const connectSocialMedia = async (email, platform) => {
+  try {
+    const userRef = doc(db, 'users', email);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      await updateDoc(userRef, {
+        connectedAccounts: arrayUnion(platform)
+      });
+    } else {
+      await setDoc(userRef, {
+        connectedAccounts: [platform]
+      });
+    }
+
+    return { success: true, message: `Connected to ${platform}` };
+  } catch (error) {
+    console.error(`Error connecting to ${platform}:`, error);
+    throw error;
   }
 };
 

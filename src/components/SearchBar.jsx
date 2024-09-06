@@ -2,11 +2,18 @@ import { useState } from 'react';
 import './SearchBar.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
-const SearchBar = () => {
+import PropTypes from 'prop-types';
+
+const SearchBar = ({ onSearch }) => {
   const [query, setQuery] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!query.trim()) {
+      alert('Please enter some keywords to search.');
+      return;
+    }
+    onSearch(query);
   };
 
   return (
@@ -23,6 +30,10 @@ const SearchBar = () => {
       </button>
     </form>
   );
+};
+
+SearchBar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
 };
 
 export default SearchBar;

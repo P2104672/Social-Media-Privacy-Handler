@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
-import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
-const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
-
-function Login() {
+function useGoogleAuth(clientId) {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -32,11 +29,7 @@ function Login() {
             script.onload = loadGoogleAPI;
             document.body.appendChild(script);
         }
-    }, []);
-
-    useEffect(() => {
-        console.log("Current user state:", user);
-    }, [user]);
+    }, [clientId]);
 
     const checkLoginStatus = () => {
         const auth2 = window.gapi.auth2.getAuthInstance();
@@ -65,40 +58,7 @@ function Login() {
         setUser(null);
     }
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    return (
-        <div>
-            {!user ? (
-                <div id="signInButton">
-                    <GoogleLogin 
-                        clientId={clientId} 
-                        buttonText='Sign in with Google' 
-                        onSuccess={onSuccess} 
-                        onFailure={onFailure} 
-                        cookiePolicy={'single_host_origin'} 
-                        isSignedIn={true}
-                    />
-                </div>
-            ) : (
-                <div>
-                    <h2>Welcome, {user.name}!</h2>
-                    <p>Email: {user.email}</p>
-                    <GoogleLogout
-                        clientId={clientId}
-                        buttonText="Logout"
-                        onLogoutSuccess={onLogoutSuccess}
-                    />
-                </div>
-            )}
-            {/* <div>
-                <h3>Debug Info:</h3>
-                <pre>{JSON.stringify(user, null, 2)}</pre>
-            </div> */}
-        </div>
-    );
+    return { user, isLoading, onSuccess, onFailure, onLogoutSuccess };
 }
 
-export default Login;
+export default useGoogleAuth;

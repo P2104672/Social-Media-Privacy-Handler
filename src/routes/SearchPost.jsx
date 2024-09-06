@@ -9,25 +9,50 @@ const Search = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
   const [keywords, setKeywords] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const platforms = [
     { name: 'Facebook', icon: FaIcons.FaFacebook },
-    { name: 'Twitter', icon: FaIcons.FaTwitter },
+    { name: 'X', icon: FaIcons.FaXTwitter },
     { name: 'Instagram', icon: FaIcons.FaInstagram },
     { name: 'LinkedIn', icon: FaIcons.FaLinkedin },
   ];
 
-  const handleSearch = (query) => {
-    // Simulating a search request
-    console.log(`Searching for: ${query} on platforms: ${selectedPlatforms.join(', ')}`);
+  const handleSearch = async (query) => {
+    if (!query.trim()) {
+      setError('Please enter some keywords to search.');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
     setKeywords(query.split(' '));
-    // In a real application, you would make an API call here
-    const mockResults = [
-      { id: 1, title: 'First search result', content: 'This is the content of the first search result.' },
-      { id: 2, title: 'Second search result', content: 'This is the content of the second search result.' },
-      { id: 3, title: 'Third search result', content: 'This is the content of the third search result.' },
-    ];
-    setSearchResults(mockResults);
+
+    try {
+      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Oops! Received non-JSON response from server");
+      }
+
+      const text = await response.text();
+      const data = JSON.parse(text);
+      setSearchResults(data);
+    } catch (err) {
+      console.error('Search error:', err);
+      setError(`An error occurred while searching: ${err.message}`);
+      if (err.message.includes("Unexpected token '<'")) {
+        console.error('Received HTML instead of JSON. Response:', err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const togglePlatform = (platform) => {
@@ -73,7 +98,10 @@ const Search = () => {
           </div>
           <SearchBar onSearch={handleSearch} />
           <div className="search-results">
-            {searchResults.map((result) => (
+            {isLoading && <p>Loading...</p>}
+            {error && <p className="error-message">{error}</p>}
+            {!isLoading && !error && searchResults.length === 0 && <p>No results found.</p>}
+            {!isLoading && !error && searchResults.map((result) => (
               <div key={result.id} className="search-result-item">
                 <h2>{highlightKeywords(result.title)}</h2>
                 <p>{highlightKeywords(result.content)}</p>

@@ -24,6 +24,10 @@
     color: #333;
 }
 
+.profile h3 {
+    color: #666;
+}
+
 .profile p {
     margin-bottom: 24px;
     color: #666;
@@ -53,3 +57,27 @@
 .linked-accounts li:last-child {
     border-bottom: none;
 }
+.connect-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .connect-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .connect-btn.facebook { background-color: #3b5998; }
+  .connect-btn.instagram { background-color: #e1306c; }
+  .connect-btn.x { background-color: #1da1f2; }
+  .connect-btn.linkedin { background-color: #0077b5; }
+  
+  .connect-btn:hover {
+    opacity: 0.9;
+  }
