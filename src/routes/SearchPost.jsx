@@ -4,6 +4,8 @@ import './SearchPost.css';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
 import * as FaIcons from 'react-icons/fa';
+import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const Search = () => {
   const [searchResults, setSearchResults] = useState([]);
@@ -14,7 +16,7 @@ const Search = () => {
 
   const platforms = [
     { name: 'Facebook', icon: FaIcons.FaFacebook },
-    { name: 'X', icon: FaIcons.FaXTwitter },
+    { name: 'Twitter', icon: () => <FontAwesomeIcon icon={faXTwitter} /> },
     { name: 'Instagram', icon: FaIcons.FaInstagram },
     { name: 'LinkedIn', icon: FaIcons.FaLinkedin },
   ];
