@@ -51,6 +51,10 @@ const Sidebar = () => {
             <FontAwesomeIcon icon={faSearch} />
             <span>Search</span>
           </Link>
+          <Link to="/post-management" className="sidebar-link">
+            <FontAwesomeIcon icon={faSearch} />
+            <span>Post Management</span>
+          </Link>
         </nav>
       </div>
       <div className={`container ${!isOpen ? 'centered' : ''}`}>
