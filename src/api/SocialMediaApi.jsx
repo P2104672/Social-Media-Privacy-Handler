@@ -1,25 +1,24 @@
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { app } from '../firebase'; // Make sure this import points to your Firebase configuration file
 import { getUserTweets, deleteTweet, updateTweet } from './XTwitterAPI';
-
-
+import { collection, query, where, getDocs } from 'firebase/firestore';
 const db = getFirestore(app);
 
-export const fetchConnectedAccounts = async (email) => {
+export const fetchConnectedAccounts = async (userId) => {
   try {
-    const userRef = doc(db, 'users', email);
-    const userSnap = await getDoc(userRef);
-
-    if (userSnap.exists()) {
-      return userSnap.data().connectedAccounts || [];
-    } else {
-      return [];
+    if (!userId) {
+      throw new Error('userId is required to fetch connected accounts');
     }
+    const accountsRef = collection(db, 'connectedAccounts');
+    const q = query(accountsRef, where('userId', '==', userId));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (error) {
     console.error('Error fetching connected accounts:', error);
     throw error;
   }
 };
+
 
 export const connectSocialMedia = async (email, platform) => {
   try {
@@ -68,6 +67,7 @@ export const fetchFacebookPosts = async () => {
 
 export const fetchInstagramPosts = async () => { /* ... */ };
 export const fetchXPosts = async (userAccessToken, userId) => {
+  console.log('fetchXPosts called with userId:', userId);
   if (!userId) {
     console.error('userId is undefined in fetchXPosts');
     return [];

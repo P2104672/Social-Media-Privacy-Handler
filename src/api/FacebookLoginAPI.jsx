@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import axios from 'axios';
@@ -7,8 +7,38 @@ function FacebookLoginAPI({ onLoginSuccess }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [isFBInitialized, setIsFBInitialized] = useState(false);
+
+  const fetchPosts = useCallback(async (token) => {
+    try {
+      const response = await axios.get(`https://graph.facebook.com/v20.0/me/posts?fields=id,message&access_token=${token}`);
+      setPosts(response.data.data);
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  }, []);
 
   useEffect(() => {
+    // Initialize Facebook SDK
+    window.fbAsyncInit = function() {
+      window.FB.init({
+        appId: '1050996050019664',
+        cookie: true,
+        xfbml: true,
+        version: 'v20.0'
+      });
+      setIsFBInitialized(true);
+    };
+
+    // Load Facebook SDK
+    (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "https://connect.facebook.net/en_US/sdk.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
     // Check localStorage for existing login data
     const storedUserData = localStorage.getItem('facebookUserData');
     if (storedUserData) {
@@ -17,7 +47,6 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       setUserData(parsedUserData);
       fetchPosts(parsedUserData.accessToken);
       
-      // Only call onLoginSuccess if it's provided
       if (onLoginSuccess && typeof onLoginSuccess === 'function') {
         onLoginSuccess({
           accessToken: parsedUserData.accessToken,
@@ -26,21 +55,21 @@ function FacebookLoginAPI({ onLoginSuccess }) {
         });
       }
     }
-  }, [onLoginSuccess]);  // Add onLoginSuccess to the dependency array
+  }, [fetchPosts, onLoginSuccess]); // Add this dependency array
 
-  const responseFacebook = async (response) => {
-    console.log('Facebook response:', response);
+  const handleFacebookLogin = (response) => {
+    console.log('Login Success!', response);
     setIsLoggedIn(true);
-    
-    // Fetch user profile to get email
-    const profileResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,email,picture&access_token=${response.accessToken}`);
-    const profileData = await profileResponse.json();
-    console.log('Profile data:', profileData);
-    
-    setUserData(profileData);
-    // Store user data in localStorage
-    localStorage.setItem('facebookUserData', JSON.stringify({...profileData, accessToken: response.accessToken}));
-    await fetchPosts(response.accessToken);
+    setUserData(response);
+    localStorage.setItem('facebookUserData', JSON.stringify(response));
+    fetchPosts(response.accessToken);
+    if (onLoginSuccess && typeof onLoginSuccess === 'function') {
+      onLoginSuccess({
+        accessToken: response.accessToken,
+        userId: response.id,
+        provider: 'facebook'
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -52,18 +81,9 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     // You might want to call FB.logout() here if using the Facebook SDK
   };
 
-  const fetchPosts = async (token) => {
-    try {
-      const response = await axios.get(`https://graph.facebook.com/v12.0/me/posts?fields=id,message&access_token=${token}`);
-      setPosts(response.data.data);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  };
-
   const deletePost = async (postId) => {
     try {
-      await axios.delete(`https://graph.facebook.com/v12.0/${postId}?access_token=${userData.accessToken}`);
+      await axios.delete(`https://graph.facebook.com/v20.0/${postId}?access_token=${userData.accessToken}`);
       setPosts(posts.filter(post => post.id !== postId));
     } catch (error) {
       console.error('Error deleting post:', error);
@@ -72,7 +92,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   const updatePost = async (postId, newMessage) => {
     try {
-      await axios.post(`https://graph.facebook.com/v12.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${userData.accessToken}`);
+      await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${userData.accessToken}`);
       setPosts(posts.map(post => post.id === postId ? {...post, message: newMessage} : post));
     } catch (error) {
       console.error('Error updating post:', error);
@@ -83,14 +103,13 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     return (
       <FacebookLogin
         appId="1050996050019664"
-        onSuccess={responseFacebook}
+        onSuccess={handleFacebookLogin}
         onFail={(error) => {
           console.log('Login Failed!', error);
         }}
-        onProfileSuccess={(response) => {
-          console.log('Get Profile Success!', response);
-        }}
         fields="name,email,picture"
+        scope="public_profile,email,user_posts"
+        disabled={!isFBInitialized}
       />
     );
   }
@@ -99,8 +118,8 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   return (
     <div>
-      <h2>Welcome {userData?.name || 'User'}</h2>
-      <p>Email: {userData?.email || 'Not available'}</p>
+      <h2>Welcome {userData.name }</h2>
+      <p>Email: {userData.email }</p>
       {userData?.picture?.data?.url && (
         <img src={userData.picture.data.url} alt={userData?.name || 'User'} />
       )}

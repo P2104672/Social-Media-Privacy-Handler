@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
 
-const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
 
 function Login() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
 
     useEffect(() => {
         const loadGoogleAPI = () => {
@@ -35,7 +35,7 @@ function Login() {
     }, []);
 
     useEffect(() => {
-        console.log("Current user state:", user);
+        console.log("Current Googleuser state:", user);
     }, [user]);
 
     const checkLoginStatus = () => {
@@ -51,8 +51,12 @@ function Login() {
     };
 
     const onSuccess = (res) => {
-        console.log("Login Success! Current user: ", res.profileObj);
+        console.log("Login Success! Current Googleuser: ", res.profileObj);
         setUser(res.profileObj);
+        // Close any popup windows
+        if (window.opener && !window.opener.closed) {
+            window.close();
+        }
     }
 
     const onFailure = (res) => {

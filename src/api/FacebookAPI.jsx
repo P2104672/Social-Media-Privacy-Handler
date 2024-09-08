@@ -4,7 +4,7 @@ import axios from 'axios';
 import { initFacebookSdk, FB } from '../utils/facebookSdk';
 
 async function getFacebookPosts(userAccessToken) {
-  const url = 'https://graph.facebook.com/v18.0/me/feed';
+  const url = 'https://graph.facebook.com/v20.0/me/feed';
   const params = {
     access_token: userAccessToken,
     fields: 'id,message,created_time,permalink_url,full_picture,type',
@@ -28,7 +28,7 @@ async function getFacebookPosts(userAccessToken) {
 }
 
 async function getSinglePost(userAccessToken, postId) {
-  const url = `https://graph.facebook.com/v18.0/${postId}`;
+  const url = `https://graph.facebook.com/v20.0/${postId}`;
   const params = {
     access_token: userAccessToken,
     fields: 'id,message,created_time,permalink_url,full_picture,type'
@@ -45,7 +45,7 @@ async function getSinglePost(userAccessToken, postId) {
 
 // Add a function to manage (update/delete) posts
 async function manageFacebookPost(userAccessToken, postId, action, updatedMessage = null) {
-  const url = `https://graph.facebook.com/v18.0/${postId}`;
+  const url = `https://graph.facebook.com/v20.0/${postId}`;
   const params = { access_token: userAccessToken };
 
   try {
@@ -65,12 +65,12 @@ async function manageFacebookPost(userAccessToken, postId, action, updatedMessag
 }
 
 async function publishFacebookPost(userAccessToken, message, link = null) {
-  const url = 'https://graph.facebook.com/v18.0/me/feed';
+  const url = 'https://graph.facebook.com/v20.0/me/feed';
   const params = { 
     access_token: userAccessToken,
     message: message
   };
-  
+
   if (link) {
     params.link = link;
   }
