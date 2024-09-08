@@ -43,6 +43,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     const storedUserData = localStorage.getItem('facebookUserData');
     if (storedUserData) {
       const parsedUserData = JSON.parse(storedUserData);
+      console.log('Stored user data:', parsedUserData); // Add this line
       setIsLoggedIn(true);
       setUserData(parsedUserData);
       fetchPosts(parsedUserData.accessToken);
@@ -59,16 +60,41 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   const handleFacebookLogin = (response) => {
     console.log('Login Success!', response);
+    const userData = {
+      accessToken: response.accessToken,
+      userID: response.userID,
+      // We'll fetch additional user data separately
+    };
     setIsLoggedIn(true);
-    setUserData(response);
-    localStorage.setItem('facebookUserData', JSON.stringify(response));
+    setUserData(userData);
+    localStorage.setItem('facebookUserData', JSON.stringify(userData));
+    fetchUserData(response.accessToken);
     fetchPosts(response.accessToken);
     if (onLoginSuccess && typeof onLoginSuccess === 'function') {
       onLoginSuccess({
         accessToken: response.accessToken,
-        userId: response.id,
+        userId: response.userID,
+        name: response.name,
+        email: response.email,
+        picture: response.picture,
         provider: 'facebook'
       });
+    }
+  };
+
+  const fetchUserData = async (token) => {
+    try {
+      const response = await axios.get(`https://graph.facebook.com/v20.0/me?fields=name,email,picture&access_token=${token}`);
+      console.log('Additional user data:', response.data); // Add this line
+      const additionalUserData = response.data;
+      setUserData(prevData => {
+        const newData = { ...prevData, ...additionalUserData };
+        console.log('Updated user data:', newData); // Add this line
+        localStorage.setItem('facebookUserData', JSON.stringify(newData));
+        return newData;
+      });
+    } catch (error) {
+      console.error('Error fetching user data:', error);
     }
   };
 
@@ -118,10 +144,13 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   return (
     <div>
-      <h2>Welcome {userData.name }</h2>
-      <p>Email: {userData.email }</p>
-      {userData?.picture?.data?.url && (
+      <h2>Welcome {userData?.name || 'User'}</h2>
+      <p>User ID: {userData?.userID || userData?.id || 'Not available'}</p>
+      <p>Email: {userData?.email || 'Not available'}</p>
+      {userData?.picture?.data?.url ? (
         <img src={userData.picture.data.url} alt={userData?.name || 'User'} />
+      ) : (
+        <p>Profile picture not available</p>
       )}
       <br/>
       <button onClick={handleLogout}>Logout</button>
