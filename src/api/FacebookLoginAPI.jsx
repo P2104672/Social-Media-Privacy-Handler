@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import axios from 'axios';
+import './FacebookLoginAPI.css';
 
 function FacebookLoginAPI({ onLoginSuccess }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -156,13 +157,15 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       <button onClick={handleLogout}>Logout</button>
       <h3>Your Posts:</h3>
       {posts.map(post => (
-        <div key={post.id}>
-          <p>{post.message}</p>
-          <button onClick={() => deletePost(post.id)}>Delete</button>
-          <button onClick={() => {
-            const newMessage = prompt('Enter new message:', post.message);
-            if (newMessage) updatePost(post.id, newMessage);
-          }}>Edit</button>
+        <div key={post.id} className="post-container">
+          <p className="post-message">{post.message}</p>
+          <div className="post-actions">
+            <button className="post-button delete-button" onClick={() => deletePost(post.id)}>Delete</button>
+            <button className="post-button edit-button" onClick={() => {
+              const newMessage = prompt('Enter new message:', post.message);
+              if (newMessage) updatePost(post.id, newMessage);
+            }}>Edit</button>
+          </div>
         </div>
       ))}
     </div>
