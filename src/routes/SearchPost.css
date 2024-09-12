@@ -102,6 +102,47 @@
     margin: 0;
     font-size: 1rem;
   }
+  .filter-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px 20px;
+    background-color: #000000;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+.date-filter select {
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid #444445;
+  background-color: #ffffff00;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23343a40' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 0 0 .293 4.707l5 5a1 1 0 0 0 1.414 0l5-5a1 1 0 1 0-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+.date-filter select:hover {
+  border-color: #6c757d;
+}
+
+.date-filter select:focus {
+  outline: none;
+  border-color: #606467;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+  .platform-selection {
+    display: flex;
+    align-items: center;
+  }
   
   @media (max-width: 600px) {
     .search-title {

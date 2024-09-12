@@ -12,7 +12,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   const fetchPosts = useCallback(async (token) => {
     try {
-      const response = await axios.get(`https://graph.facebook.com/v20.0/me/posts?fields=id,message&access_token=${token}`);
+      const response = await axios.get(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${token}`);
       setPosts(response.data.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
@@ -114,6 +114,12 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       setPosts(posts.filter(post => post.id !== postId));
     } catch (error) {
       console.error('Error deleting post:', error);
+      // Check if the error is due to permissions
+      if (error.response && error.response.status === 403) {
+        alert("You don't have permission to delete this post. This may be because the post is older than 90 days or you don't have the necessary app permissions.");
+      } else {
+        alert("An error occurred while trying to delete the post. Please try again later.");
+      }
     }
   };
 
@@ -124,6 +130,14 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     } catch (error) {
       console.error('Error updating post:', error);
     }
+  };
+
+  const formatDate = (dateString) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(new Date(dateString));
   };
 
   if (!isLoggedIn) {
@@ -155,19 +169,27 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       )}
       <br/>
       <button onClick={handleLogout}>Logout</button>
-      <h3>Your Posts:</h3>
-      {posts.map(post => (
-        <div key={post.id} className="post-container">
-          <p className="post-message">{post.message}</p>
-          <div className="post-actions">
-            <button className="post-button delete-button" onClick={() => deletePost(post.id)}>Delete</button>
-            <button className="post-button edit-button" onClick={() => {
-              const newMessage = prompt('Enter new message:', post.message);
-              if (newMessage) updatePost(post.id, newMessage);
-            }}>Edit</button>
+      <h3>Your Posts (Last Week):</h3>
+      {posts
+        .filter(post => {
+          const postDate = new Date(post.created_time);
+          const oneWeekAgo = new Date();
+          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+          return postDate >= oneWeekAgo;
+        })
+        .map(post => (
+          <div key={post.id} className="post-container">
+            <p className="post-message">{post.message}</p>
+            <p className="post-date">{formatDate(post.created_time)}</p>
+            <div className="post-actions">
+              <button className="post-button delete-button" onClick={() => deletePost(post.id)}>Delete</button>
+              <button className="post-button edit-button" onClick={() => {
+                const newMessage = prompt('Enter new message:', post.message);
+                if (newMessage) updatePost(post.id, newMessage);
+              }}>Edit</button>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   );
 }

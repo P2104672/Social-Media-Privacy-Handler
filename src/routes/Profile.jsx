@@ -6,7 +6,8 @@ import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
 import * as FaIcons from 'react-icons/fa';
 const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
-
+import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const Profile = () => {
 	const { user, isLoading, onSuccess } = useGoogleAuth(clientId);
 	const [connectedAccounts, setConnectedAccounts] = useState([]);
@@ -20,9 +21,11 @@ const Profile = () => {
 	const loadConnectedAccounts = async (email) => {
 		try {
 			const accounts = await fetchConnectedAccounts(email);
-			setConnectedAccounts(accounts);
+			// Ensure accounts is always an array
+			setConnectedAccounts(Array.isArray(accounts) ? accounts : []);
 		} catch (error) {
 			console.error('Error fetching connected accounts:', error);
+			setConnectedAccounts([]); // Set to empty array on error
 		}
 	};
 
@@ -53,7 +56,7 @@ const Profile = () => {
 							<i className="fas fa-user-circle"></i>
 						</div>
 						<h3>Connected Accounts:</h3>
-						{connectedAccounts.length > 0 ? (
+						{Array.isArray(connectedAccounts) && connectedAccounts.length > 0 ? (
 							<ul>
 								{connectedAccounts.map((account, index) => (
 									<li key={index}>{account}</li>
@@ -73,7 +76,7 @@ const Profile = () => {
 								>
 									{platform === 'Facebook' && <FaIcons.FaFacebook />}
 									{platform === 'Instagram' && <FaIcons.FaInstagram />}
-									{platform === 'X' && <FaIcons.FaTwitter />}
+									{platform === 'X' && <FontAwesomeIcon icon={faXTwitter} /> }
 									{platform === 'LinkedIn' && <FaIcons.FaLinkedin />}
 									<span style={{ marginLeft: '8px' }}>Connect {platform}</span>
 								</button>

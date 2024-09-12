@@ -1,18 +1,13 @@
 import { getFirestore, doc, getDoc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import { app } from '../firebase'; // Make sure this import points to your Firebase configuration file
 import { getUserTweets, deleteTweet, updateTweet } from './XTwitterAPI';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import axios from 'axios';
 const db = getFirestore(app);
 
-export const fetchConnectedAccounts = async (userId) => {
+export const fetchConnectedAccounts = async () => {
   try {
-    if (!userId) {
-      throw new Error('userId is required to fetch connected accounts');
-    }
-    const accountsRef = collection(db, 'connectedAccounts');
-    const q = query(accountsRef, where('userId', '==', userId));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const response = await axios.get('/api/connected-accounts');
+    return response.data;
   } catch (error) {
     console.error('Error fetching connected accounts:', error);
     throw error;
