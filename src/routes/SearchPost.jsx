@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './SearchPost.css';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
 import { FaFacebookF, FaInstagram, FaLinkedin, FaSearch } from 'react-icons/fa';
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getFacebookAccessToken } from '../api/facebookUtils';
 
 const SearchPost = () => {
   const [searchResults, setSearchResults] = useState([]);
@@ -16,7 +17,7 @@ const SearchPost = () => {
 
   const platforms = [
     { name: 'Facebook', icon: FaFacebookF },
-    { name: 'Twitter', icon: () => <FontAwesomeIcon icon={faXTwitter} /> },
+    { name: 'X', icon: () => <FontAwesomeIcon icon={faXTwitter} /> },
     { name: 'Instagram', icon: FaInstagram },
     { name: 'LinkedIn', icon: FaLinkedin },
   ];
@@ -28,26 +29,14 @@ const SearchPost = () => {
   const fetchPosts = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/FacebookLoginAPI');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const { accessToken } = await getFacebookAccessToken();
+      const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${accessToken}`);
+      if (!fbResponse.ok) {
+        const errorData = await fbResponse.json();
+        throw new Error(`Facebook API error! status: ${fbResponse.status}, message: ${JSON.stringify(errorData)}`);
       }
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const { accessToken } = await response.json();
-        const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${accessToken}`);
-        if (!fbResponse.ok) {
-          const errorData = await fbResponse.json();
-          throw new Error(`Facebook API error! status: ${fbResponse.status}, message: ${JSON.stringify(errorData)}`);
-        }
-        const data = await fbResponse.json();
-        setSearchResults(data.data);
-      } else {
-        // Handle non-JSON response
-        const text = await response.text();
-        console.error('Received non-JSON response:', text);
-        throw new Error('Received non-JSON response from server');
-      }
+      const data = await fbResponse.json();
+      setSearchResults(data.data);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError(`Failed to fetch posts: ${err.message}`);
@@ -69,34 +58,22 @@ const SearchPost = () => {
     const searchKeywords = keywords.toLowerCase().split(' ');
 
     try {
-      const response = await fetch('/api/FacebookLoginAPI');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const { accessToken } = await getFacebookAccessToken();
+      const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${accessToken}&q=${encodeURIComponent(keywords)}`);
+      if (!fbResponse.ok) {
+        const errorData = await fbResponse.json();
+        throw new Error(`Facebook API error! status: ${fbResponse.status}, message: ${JSON.stringify(errorData)}`);
       }
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        const { accessToken } = await response.json();
-        const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${accessToken}&q=${encodeURIComponent(keywords)}`);
-        if (!fbResponse.ok) {
-          const errorData = await fbResponse.json();
-          throw new Error(`Facebook API error! status: ${fbResponse.status}, message: ${JSON.stringify(errorData)}`);
-        }
-        const data = await fbResponse.json();
-        
-        const filteredResults = data.data.filter(post => 
-          (selectedPlatforms.length === 0 || selectedPlatforms.includes('Facebook')) &&
-          searchKeywords.some(keyword => 
-            post.message && post.message.toLowerCase().includes(keyword)
-          )
-        );
+      const data = await fbResponse.json();
+      
+      const filteredResults = data.data.filter(post => 
+        (selectedPlatforms.length === 0 || selectedPlatforms.includes('Facebook')) &&
+        searchKeywords.some(keyword => 
+          post.message && post.message.toLowerCase().includes(keyword)
+        )
+      );
 
-        applyDateFilter(filteredResults);
-      } else {
-        // Handle non-JSON response
-        const text = await response.text();
-        console.error('Received non-JSON response:', text);
-        throw new Error('Received non-JSON response from server');
-      }
+      applyDateFilter(filteredResults);
     } catch (err) {
       console.error('Error searching posts:', err);
       setError(`Failed to search posts: ${err.message}`);
@@ -106,26 +83,28 @@ const SearchPost = () => {
     }
   };
 
-  const applyDateFilter = (posts) => {
+  const applyDateFilter = (results) => {
     const now = new Date();
-    const filtered = posts.filter(post => {
+    const filteredResults = results.filter(post => {
       const postDate = new Date(post.created_time);
       switch (dateFilter) {
-        case 'week':
-          return now - postDate <= 7 * 24 * 60 * 60 * 1000;
-        case 'month':
-          return now - postDate <= 30 * 24 * 60 * 60 * 1000;
-        case 'year':
-          return now - postDate <= 365 * 24 * 60 * 60 * 1000;
+        case 'today':
+          return postDate.toDateString() === now.toDateString();
+        case 'thisWeek': {
+          const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+          return postDate >= weekAgo;
+        }
+        case 'thisMonth':
+          return postDate.getMonth() === now.getMonth() && postDate.getFullYear() === now.getFullYear();
         default:
           return true;
       }
     });
-    setSearchResults(filtered);
+    setSearchResults(filteredResults);
   };
 
-  const handleDateFilterChange = (filter) => {
-    setDateFilter(filter);
+  const handleDateFilterChange = (event) => {
+    setDateFilter(event.target.value);
     applyDateFilter(searchResults);
   };
 
@@ -137,82 +116,66 @@ const SearchPost = () => {
     );
   };
 
-  const selectAllPlatforms = () => {
-    setSelectedPlatforms(platforms.map(p => p.name));
-  };
-
-  const highlightKeywords = (text) => {
-    if (!text) return '';
-    let highlightedText = text;
-    keywords.split(' ').forEach(keyword => {
-      const regex = new RegExp(keyword, 'gi');
-      highlightedText = highlightedText.replace(regex, match => `<mark>${match}</mark>`);
-    });
-    return <span dangerouslySetInnerHTML={{ __html: highlightedText }} />;
-  };
-
   return (
     <div className="searchpost-container">
-      <div className="search-page">
-        <Sidebar />
-        <div className="search-container">
-          <h1 className="search-title">Search Posts</h1>
-          <form onSubmit={handleSearch} className="search-form">
+      <Sidebar />
+      <div className="main-content">
+        <h1 className="search-title">Search Posts</h1>
+        <form onSubmit={handleSearch} className="search-form">
+          <div className="search-input-container">
             <input
               type="text"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
-              placeholder="Enter keywords to search"
+              placeholder="Search posts..."
               className="search-input"
             />
             <button type="submit" className="search-button">
               <FaSearch />
             </button>
-          </form>
-          <div className="filter-bar">
-            <div className="platform-selection">
-              <div className="platform-buttons">
-                {platforms.map(platform => (
-                  <button
-                    key={platform.name}
-                    className={`platform-button ${selectedPlatforms.includes(platform.name) ? 'selected' : ''}`}
-                    onClick={() => togglePlatform(platform.name)}
-                    data-platform={platform.name}
-                    title={platform.name}
-                  >
-                    {React.createElement(platform.icon)}
-                  </button>
-                ))}
-              </div>
-              <button className="select-all-button" onClick={selectAllPlatforms}>
-                All Platforms
-              </button>
+          </div>
+          <div className="filter-container">
+            <div className="platform-filters">
+              {platforms.map(({ name, icon: Icon }) => (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => togglePlatform(name)}
+                  className={`platform-button ${selectedPlatforms.includes(name) ? 'selected' : ''}`}
+                >
+                  <Icon />
+                  <span className="platform-name">{name}</span>
+                </button>
+              ))}
             </div>
-            <div className="date-filter">
-              <select value={dateFilter} onChange={(e) => handleDateFilterChange(e.target.value)}>
-                <option value="all">All time</option>
-                <option value="week">Last week</option>
-                <option value="month">Last month</option>
-                <option value="year">Last year</option>
+            <div className="date-filter-container">
+              <select value={dateFilter} onChange={handleDateFilterChange} className="date-filter">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="thisWeek">This Week</option>
+                <option value="thisMonth">This Month</option>
               </select>
             </div>
           </div>
-          <div className="search-results">
-            {isLoading && <p>Loading...</p>}
-            {error && <p className="error-message">{error}</p>}
-            {!isLoading && !error && searchResults.length === 0 && <p>No results found.</p>}
-            {!isLoading && !error && searchResults.map((post) => (
-              <div key={post.id} className="search-result-item">
-                <h2>{highlightKeywords(post.message)}</h2>
-                <p>Date: {new Date(post.created_time).toLocaleDateString()}</p>
-                <p>Platform: {post.platform}</p>
+        </form>
+        {isLoading && <div className="loader">Loading...</div>}
+        {error && <p className="error-message">{error}</p>}
+        <div className="search-results-container">
+          {searchResults.length > 0 ? (
+            searchResults.map(post => (
+              <div key={post.id} className="post-card">
+                <p className="post-message">{post.message}</p>
+                <p className="post-date">{new Date(post.created_time).toLocaleString()}</p>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <p className="no-results">No posts found. Try adjusting your search criteria.</p>
+          )}
         </div>
         <Footer />
       </div>
     </div>
+    
   );
 };
 

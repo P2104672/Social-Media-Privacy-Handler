@@ -16,6 +16,7 @@ import FacebookLoginAPI from '../api/FacebookLoginAPI'
 
 function PostManagement() {
     const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com"; //Google client ID
+    
     const { user, isLoading } = useGoogleAuth(clientId);
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState(null);
