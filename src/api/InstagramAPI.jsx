@@ -1,4 +1,6 @@
 import axios from 'axios';
+// Instagram 應用程式編號 1201668870922234
+// Instagram 應用程式密鑰 916306894d64639136c121d18b3d417d
 
 const INSTAGRAM_API_BASE_URL = 'https://graph.instagram.com/v12.0';
 

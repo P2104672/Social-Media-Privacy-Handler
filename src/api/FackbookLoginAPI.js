@@ -1,6 +1,5 @@
 export async function getFacebookAccessToken() {
-    // In a real application, you would fetch this from a secure backend
-    // For now, we'll return a mock token
+
     try {
       const response = await fetch('/api/FacebookLoginAPI');
       if (!response.ok) {

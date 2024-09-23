@@ -6,7 +6,7 @@ import { FaFacebookF, FaInstagram, FaLinkedin, FaSearch } from 'react-icons/fa';
 import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFacebookAccessToken } from '../api/facebookUtils';
-
+import {updatePost, deletePost } from '../api/FacebookLoginAPI';
 const SearchPost = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState([]);
@@ -166,14 +166,22 @@ const SearchPost = () => {
               <div key={post.id} className="post-card">
                 <p className="post-message">{post.message}</p>
                 <p className="post-date">{new Date(post.created_time).toLocaleString()}</p>
+                <div className="post-actions">
+              <button className="post-button delete-button" onClick={() => deletePost(post.id)}>Delete</button>
+              <button className="post-button edit-button" onClick={() => {
+                const newMessage = prompt('Enter new message:', post.message);
+                if (newMessage) updatePost(post.id, newMessage);
+              }}>Edit</button>
+            </div>
               </div>
             ))
           ) : (
             <p className="no-results">No posts found. Try adjusting your search criteria.</p>
           )}
         </div>
-        <Footer />
+        
       </div>
+      <Footer />
     </div>
     
   );

@@ -64,7 +64,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     const userData = {
       accessToken: response.accessToken,
       userID: response.userID,
-      // We'll fetch additional user data separately
+      // fetch additional user data separately
     };
     setIsLoggedIn(true);
     setUserData(userData);
@@ -86,11 +86,11 @@ function FacebookLoginAPI({ onLoginSuccess }) {
   const fetchUserData = async (token) => {
     try {
       const response = await axios.get(`https://graph.facebook.com/v20.0/me?fields=name,email,picture&access_token=${token}`);
-      console.log('Additional user data:', response.data); // Add this line
+      console.log('Additional user data:', response.data);
       const additionalUserData = response.data;
       setUserData(prevData => {
         const newData = { ...prevData, ...additionalUserData };
-        console.log('Updated user data:', newData); // Add this line
+        console.log('Updated user data:', newData);
         localStorage.setItem('facebookUserData', JSON.stringify(newData));
         return newData;
       });
@@ -169,6 +169,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       )}
       <br/>
       <button onClick={handleLogout}>Logout</button>
+      
       <h3>Your Posts (Last Week):</h3>
       {posts
         .filter(post => {
