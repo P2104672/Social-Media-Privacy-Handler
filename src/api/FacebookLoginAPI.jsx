@@ -86,7 +86,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
   const fetchUserData = async (token) => {
     try {
       const response = await axios.get(`https://graph.facebook.com/v20.0/me?fields=name,email,picture&access_token=${token}`);
-      console.log('Additional user data:', response.data);
+      console.log('Additional user data:', response.data); // Add this line
       const additionalUserData = response.data;
       setUserData(prevData => {
         const newData = { ...prevData, ...additionalUserData };

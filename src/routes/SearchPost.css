@@ -44,6 +44,7 @@
   .search-bar {
     display: flex;
     margin-bottom: 30px;
+    color: white;
   }
   
   .search-input {
@@ -55,6 +56,7 @@
     border: 1px solid var(--border-color);
     border-radius: 4px 0 0 4px;
     outline: none;
+    color: white;
   }
   
   .search-button {
@@ -157,16 +159,12 @@
     }
   }
 
-.search-form {
-  max-width: 800px;
-  margin: 0 auto;
-}
+
 
 .search-input-container {
   display: flex;
   margin-bottom: 1rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -174,11 +172,8 @@
   flex-grow: 1;
   padding: 12px 16px;
   font-size: 16px;
-  border: 1px solid #e0e0e0;
-  border-right: none;
-  border-radius: 8px 0 0 8px;
   outline: none;
-  transition: border-color 0.3s ease;
+
 }
 
 .search-input:focus {
@@ -272,6 +267,7 @@
   padding: 1rem;
 }
 
+
 .post-card {
   background-color: white;
   border-radius: 8px;
@@ -313,4 +309,65 @@
   text-align: center;
   color: #e53e3e;
   margin: 2rem 0;
+}
+
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+  margin-right: 8px;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #0056b3;
+}
+
+
+/* Search bar */
+.search-input{
+  flex: 1;
+  padding: 8px;
+  border-radius: 50px 50px 50px 50px;
+  color: white ;
+
+}
+
+.search-controls {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  flex-grow: 1;
+  padding: 12px 16px;
+  font-size: 16px;
+  border-right: none;
+  border-radius: 50px 50px 50px 50px;
+  transition: border-color 0.3s ease;
+  
+  }
+
+
+.search-button, .filter-button, .search-filter-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+}
+
+.search-button:hover, .filter-button:hover, .search-filter-button:hover {
+  background-color: #0056b3;
 }
