@@ -384,6 +384,7 @@ const SearchPost = () => {
             <option value="thisWeek">This Week</option>
             <option value="thisMonth">This Month</option>
           </select>
+          
         </div>
         <div className="platform-filters">
           {platforms.map(({ name, icon: Icon }) => (
@@ -398,13 +399,15 @@ const SearchPost = () => {
             </button>
           ))}
         </div>
+        
+        <div className="search-results-container">
         {isLoading && <div className="loader">Loading...</div>}
         {error && <p className="error-message">{error}</p>}
-        <div className="search-results-container">
           {displayedPosts.length > 0 ? (
             displayedPosts.map(post => (
               <div key={post.id} className="post-card">
                 <p className="post-message">{post.message}</p>
+                <img/>
                 <p className="post-date">{formatDate(post.created_time)}</p>
                 <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
                 <button onClick={() => {

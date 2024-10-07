@@ -55,10 +55,15 @@ const Sidebar = () => {
             <FontAwesomeIcon icon={faSearch} />
             <span>Post Management</span>
           </Link>
+          <Link to="/DashboardSocialMeida" className="sidebar-link">
+            <FontAwesomeIcon icon={faSearch} />
+            <span>DashboardSocialMeida</span>
+          </Link>
+          
         </nav>
       </div>
       <div className={`container ${!isOpen ? 'centered' : ''}`}>
-        {/* Your main content goes here */}
+        
       </div>
     </>
   );

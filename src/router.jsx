@@ -5,6 +5,7 @@ import Dashboard from './routes/Dashboard.jsx'
 import SearchPost from './routes/SearchPost.jsx'
 import {createBrowserRouter} from "react-router-dom";
 import PostManagement from './routes/PostManagement.jsx';
+import DashboardSocialMeida from './routes/DashboardSocialMeida.jsx';
 
 // put all the routes here !!!!!!!
 export const router = createBrowserRouter([
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
     {path: '/profile', element:<Profile />},
     {path: '/dashboard', element:<Dashboard />},
     {path: '/search', element:<SearchPost />},
-    {path: '/post-management', element:<PostManagement />}
+    {path: '/post-management', element:<PostManagement />},
+    {path: '/DashboardSocialMeida', element:<DashboardSocialMeida/> },
 
   ])

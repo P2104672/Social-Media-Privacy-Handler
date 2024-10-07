@@ -75,7 +75,7 @@
   
   .connect-btn.facebook { background-color: #3b5998; }
   .connect-btn.instagram { background-color: #e1306c; }
-  .connect-btn.x { background-color: #1da1f2; }
+  .connect-btn.x { background-color: #232425; color: white;}
   .connect-btn.linkedin { background-color: #0077b5; }
   
   .connect-btn:hover {
