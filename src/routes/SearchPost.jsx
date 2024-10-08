@@ -266,24 +266,39 @@ const SearchPost = () => {
     setIsLoading(true);
     try {
       const { accessToken } = await getFacebookAccessToken();
-      const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${accessToken}`);
+      const fbResponse = await fetch(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time,attachments&access_token=${accessToken}`);
+      
       if (!fbResponse.ok) {
         const errorData = await fbResponse.json();
+        
+        // Check for rate limit error
+        if (errorData.error.code === 4) {
+          throw new Error("Request limit reached. Please try again later.");
+        }
+        
         throw new Error(`Facebook API error! status: ${fbResponse.status}, message: ${JSON.stringify(errorData)}`);
       }
+
       const data = await fbResponse.json();
-      setAllPosts(data.data);
-      setDisplayedPosts(data.data);
+      const postsWithComments = await Promise.all(data.data.map(async post => {
+        const commentsResponse = await fetch(`https://graph.facebook.com/v20.0/${post.id}/comments?access_token=${accessToken}`);
+        const commentsData = await commentsResponse.json();
+        return { ...post, comments: commentsData.data || [] };
+      }));
+
+      setDisplayedPosts(postsWithComments);
     } catch (err) {
       console.error('Error fetching posts:', err);
       setError(`Failed to fetch posts: ${err.message}`);
-      setAllPosts([]);
       setDisplayedPosts([]);
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchPosts();
+  }, []);
   const applyFilters = () => {
     const searchKeywords = keywords.toLowerCase().split(' ');
     const now = new Date();
@@ -401,25 +416,38 @@ const SearchPost = () => {
         </div>
         
         <div className="search-results-container">
-        {isLoading && <div className="loader">Loading...</div>}
-        {error && <p className="error-message">{error}</p>}
-          {displayedPosts.length > 0 ? (
-            displayedPosts.map(post => (
-              <div key={post.id} className="post-card">
-                <p className="post-message">{post.message}</p>
-                <img/>
-                <p className="post-date">{formatDate(post.created_time)}</p>
-                <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
-                <button onClick={() => {
-                  const newMessage = prompt("Enter new message:", post.message);
-                  if (newMessage) updatePost(post.id, newMessage);
-                }} className="edit-button">Edit</button>
-              </div>
-            ))
-          ) : (
-            <p className="no-results">No posts found. Try adjusting your search criteria.</p>
-          )}
-        </div>
+      {isLoading && <div className="loader">Loading...</div>}
+      {error && <p className="error-message">{error}</p>}
+      {displayedPosts.length > 0 ? (
+        displayedPosts.map(post => (
+          <div key={post.id} className="post-card">
+            <p className="post-message">{post.message}</p>
+            {post.attachments && post.attachments.data.map(attachment => (
+              <img key={attachment.media.id} src={attachment.media.image.src} alt="Post attachment" className="post-image" />
+            ))}
+            <p className="post-date">{formatDate(post.created_time)}</p>
+            <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
+            <button onClick={() => {
+              const newMessage = prompt("Enter new message:", post.message);
+              if (newMessage) updatePost(post.id, newMessage);
+            }} className="edit-button">Edit</button>
+            <div className="comments-section">
+              {post.comments && post.comments.length > 0 ? (
+                post.comments.map(comment => (
+                  <div key={comment.id} className="comment">
+                    <p>{comment.message}</p>
+                  </div>
+                ))
+              ) : (
+                <p>No comments.</p>
+              )}
+            </div>
+          </div>
+        ))
+      ) : (
+        <p className="no-results">No posts found. Try adjusting your search criteria.</p>
+      )}
+    </div>
       </div>
       <Footer />
     </div>

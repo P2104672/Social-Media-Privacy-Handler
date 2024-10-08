@@ -3,7 +3,7 @@ export const getFacebookAccessToken = async () => {
     // Replace this with your actual method of obtaining the access token
     // For example, you might need to implement Facebook Login
     // and store the token securely
-    const accessToken = 'EAAEN4DM9Qd8BO462K8ZAU4f03DjoBFf8MkgMBqcgWsWHM3GZBwC14x0rCb9awHyPhZCiVxxD7FZAQciieqkc4MIPwlscQcezeGkxc5t6F7usJ9seYZAkng8j34ZAL3xtc40DudE0Ss5yeffhj9z8L4NJwwqNZBjNALTBRiQ5Nf6Uo1FubhPB9JYfPG4qgDP8PQEW5GHxClIK4m4c6eyW4uFqAgoxpUiBhocDxO20wbdg1BcYF2XvlQs';
+    const accessToken = 'EAAEN4DM9Qd8BOxO064P2l3ereg3U0g8C9t1W9t72YZCrZCXZB2RyvAX3rQxg6ttINofi30vvAUJXChzRfHjO5WpSCyQrKgS3VmSnG38H3UrkVdbB8ZAZB9yJQ9wr2nKHPn88FV28rUljzUMfIxowZBwV5NtK9K6jgZB9RAVp321lG4NNkqkl1jrv2rsY9ZBo7uZB5VyT1dZAkVPccu4lW0fiAePtdpOmFF5g4wtwPF4ZBnHZALJwZCnBOHvHymOZAo7zsCqHEZD';
     
     // Generate a new access token
     // https://developers.facebook.com/tools/accesstoken/
