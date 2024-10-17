@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { GoogleLogin, GoogleLogout } from 'react-google-login';
-
+// Google Login 
 
 function Login() {
     const [user, setUser] = useState(null);
@@ -101,6 +101,7 @@ function Login() {
                 <h3>Debug Info:</h3>
                 <pre>{JSON.stringify(user, null, 2)}</pre>
             </div> */}
+            
         </div>
     );
 }

@@ -1,5 +1,4 @@
 /* Profile container styles */
-
 .profile-container {
     display: flex;
     flex-direction: column;
@@ -8,7 +7,7 @@
     min-height: calc(100vh - 80px); 
     padding: 20px;
     margin-left: 250px; 
-  }
+}
 
 .profile {
     padding: 90px;
@@ -49,7 +48,7 @@
 }
 
 .linked-accounts li {
-    padding: 8px 0;
+    padding: 8px 0; 
     border-bottom: 1px solid #e0e0e0;
     color: #555;
 }
@@ -57,27 +56,35 @@
 .linked-accounts li:last-child {
     border-bottom: none;
 }
-.connect-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  
-  .connect-btn {
-    padding: 10px 20px;
+
+
+
+.connect-btn {
+    padding: 12px 20px; /* Adjusted padding for consistency */
     border: none;
     border-radius: 5px;
     color: white;
     cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .connect-btn.facebook { background-color: #3b5998; }
-  .connect-btn.instagram { background-color: #e1306c; }
-  .connect-btn.x { background-color: #232425; color: white;}
-  .connect-btn.linkedin { background-color: #0077b5; }
-  
-  .connect-btn:hover {
+    transition: background-color 0.3s, transform 0.2s; /* Added transform for hover */
+    display: flex; /* Ensures icon and text align properly */
+    align-items: center; /* Centers icon and text vertically */
+    justify-content: center; /* Centers icon and text horizontally */
+    font-size: 14px; /* Consistent font size */
+}
+
+.connect-btn.facebook { background-color: #3b5998; }
+.connect-btn.instagram { background-color: #e1306c; }
+.connect-btn.x { background-color: #1da1f2; }
+.connect-btn.linkedin { background-color: #0077b5; }
+
+.connect-btn:hover {
     opacity: 0.9;
-  }
+    transform: scale(1.05); /* Slightly increase size on hover */
+}
+
+/* Icon styles for consistency */
+.connect-btn svg {
+    width: 20px; /* Consistent icon size */
+    height: 20px; /* Consistent icon size */
+    margin-right: 8px; /* Space between icon and text */
+}

@@ -25,14 +25,19 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
     "gapi-script": "^1.2.0",
+    "passport": "^0.7.0",
+    "passport-twitter": "^1.0.4",
     "react": "^18.3.1",
+    "react-datepicker": "^7.4.0",
     "react-dom": "^18.3.1",
     "react-facebook": "^9.0.12",
     "react-facebook-login": "^4.1.1",
     "react-google-login": "^5.2.2",
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.1",
-    "reactjs-social-login": "^2.6.3"
+    "react-twitter-login": "^1.5.0",
+    "reactjs-social-login": "^2.6.3",
+    "twitter-api-v2": "^1.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

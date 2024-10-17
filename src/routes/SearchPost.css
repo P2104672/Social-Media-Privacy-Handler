@@ -264,6 +264,30 @@
   pointer-events: none;
 }
 
+.specific-date-input,
+.specific-month-input {
+  padding: 8px;
+  border-radius: 20px;
+  border: 1px solid #444445;
+  background-color: #ffffff00;
+  font-size: 14px;
+  color: var(--text-color);
+  transition: border-color 0.3s ease;
+  appearance: none;
+  outline: none;
+}
+
+.specific-date-input:hover,
+.specific-month-input:hover {
+  border-color: #6c757d;
+}
+
+.specific-date-input:focus,
+.specific-month-input:focus {
+  border-color: #606467;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+}
+
 .search-results-container {
   max-width: 800px;
   margin: 2rem auto;

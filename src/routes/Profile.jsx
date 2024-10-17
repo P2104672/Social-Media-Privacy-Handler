@@ -66,19 +66,18 @@ const Profile = () => {
 							<p>No connected social media accounts.</p>
 						)}
 						<h3>Connect More Accounts:</h3>
-						<div className="connect-buttons" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+						<div className="connect-buttons">
 							{['Facebook', 'Instagram', 'X', 'LinkedIn'].map(platform => (
 								<button 
 									key={platform} 
 									onClick={() => handleConnectPlatform(platform)}
 									className={`connect-btn ${platform.toLowerCase()}`}
-									style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
 								>
 									{platform === 'Facebook' && <FaIcons.FaFacebook />}
 									{platform === 'Instagram' && <FaIcons.FaInstagram />}
-									{platform === 'X' && <FontAwesomeIcon icon={faXTwitter} /> }
+									{platform === 'X' && <FontAwesomeIcon icon={faXTwitter} />}
 									{platform === 'LinkedIn' && <FaIcons.FaLinkedin />}
-									<span style={{ marginLeft: '8px' }}>Connect {platform}</span>
+									<span>Connect {platform}</span>
 								</button>
 							))}
 						</div>
