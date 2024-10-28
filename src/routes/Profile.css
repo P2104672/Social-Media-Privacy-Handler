@@ -1,90 +1,63 @@
-/* Profile container styles */
-.profile-container {
+.profile-page {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 80px); 
     padding: 20px;
-    margin-left: 250px; 
-}
-
-.profile {
-    padding: 90px;
-    max-width: 600px;
-    margin: 0 auto;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.profile h2 {
-    margin-bottom: 16px;
-    color: #333;
-}
-
-.profile h3 {
-    color: #666;
-}
-
-.profile p {
-    margin-bottom: 24px;
-    color: #666;
-}
-
-/* Linked accounts section */
-.linked-accounts {
-    margin-top: 24px;
-}
-
-.linked-accounts h3 {
-    margin-bottom: 16px;
-    color: #444;
-}
-
-.linked-accounts ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.linked-accounts li {
-    padding: 8px 0; 
-    border-bottom: 1px solid #e0e0e0;
-    color: #555;
-}
-
-.linked-accounts li:last-child {
-    border-bottom: none;
-}
-
-
-
-.connect-btn {
-    padding: 12px 20px; /* Adjusted padding for consistency */
-    border: none;
-    border-radius: 5px;
+  }
+  
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+  }
+  
+  .connected-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .connected-platforms > div {
+    margin: 10px;
+  }
+  
+  .connected-platforms button {
+    background-color: #9cb8d6;
     color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; /* Added transform for hover */
-    display: flex; /* Ensures icon and text align properly */
-    align-items: center; /* Centers icon and text vertically */
-    justify-content: center; /* Centers icon and text horizontally */
-    font-size: 14px; /* Consistent font size */
-}
+  }
+  
+  .connected-platforms button:hover {
+    background-color: #9cb8d6;
+  }
+  
+  .connected-platforms button:disabled {
+    background-color: #c0c0c0;
+    cursor: not-allowed;
+  }
 
-.connect-btn.facebook { background-color: #3b5998; }
-.connect-btn.instagram { background-color: #e1306c; }
-.connect-btn.x { background-color: #1da1f2; }
-.connect-btn.linkedin { background-color: #0077b5; }
-
-.connect-btn:hover {
-    opacity: 0.9;
-    transform: scale(1.05); /* Slightly increase size on hover */
-}
-
-/* Icon styles for consistency */
-.connect-btn svg {
-    width: 20px; /* Consistent icon size */
-    height: 20px; /* Consistent icon size */
-    margin-right: 8px; /* Space between icon and text */
-}
+  .connected-platforms {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .connected-platforms > * {
+    margin: 10px;
+  }
+  
+  .connected-platforms button {
+    margin: 10px;
+    padding: 10px 20px;
+  }
+  
+  .connected-platforms button svg {
+    margin-right: 10px;
+  }

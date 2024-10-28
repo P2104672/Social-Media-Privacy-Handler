@@ -1,83 +1,65 @@
 import { useState, useEffect } from 'react';
-import { fetchThreadsPosts, deleteThreadsPost, editThreadsPost } from '../api/threadsUtils';
-import './ThreadsAPI.css';
+import threadsUtils from './threadsUtils';
 
-const ThreadsPosts = () => {
-    const [posts, setPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [editingPostId, setEditingPostId] = useState(null);
-    const [editedContent, setEditedContent] = useState('');
+function ThreadsAPI() {
+  const [posts, setPosts] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accessToken, setAccessToken] = useState(null); // Use accessToken to manage authentication
 
-    useEffect(() => {
-        loadPosts();
-    }, []);
-
-    const loadPosts = async () => {
-        setIsLoading(true);
-        try {
-            const posts = await fetchThreadsPosts();
-            setPosts(posts);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setIsLoading(false);
-        }
+  useEffect(() => {
+    const fetchPostsData = async () => {
+      try {
+        const { accessToken: token } = await threadsUtils.getThreadsAccessToken();
+        setAccessToken(token); // Store the access token
+        const postsData = await threadsUtils.fetchPosts(token);
+        setPosts(postsData);
+        setIsLoggedIn(true);
+      } catch (error) {
+        console.error('Error fetching posts data:', error);
+      }
     };
 
-    const handleDelete = async (postId) => {
-        try {
-            await deleteThreadsPost(postId);
-            setPosts(posts.filter(post => post.id !== postId));
-        } catch (err) {
-            setError(err.message);
-        }
-    };
+    fetchPostsData();
+  }, []);
 
-    const handleEdit = async (postId) => {
-        try {
-            await editThreadsPost(postId, editedContent);
-            setPosts(posts.map(post => (post.id === postId ? { ...post, content: editedContent } : post)));
-            setEditingPostId(null);
-            setEditedContent('');
-        } catch (err) {
-            setError(err.message);
-        }
-    };
+  const handleDeletePost = async (postId) => {
+    try {
+      await threadsUtils.deletePost(postId, accessToken);
+      setPosts(posts.filter(post => post.id !== postId));
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
 
-    return (
-        <div className="threads-posts">
-            {isLoading ? (
-                <div className="loader">Loading...</div>
-            ) : error ? (
-                <div className="error-message">{error}</div>
-            ) : (
-                <div className="posts-container">
-                    {posts.map(post => (
-                        <div key={post.id} className="post-card">
-                            {editingPostId === post.id ? (
-                                <div>
-                                    <textarea
-                                        value={editedContent}
-                                        onChange={(e) => setEditedContent(e.target.value)}
-                                        placeholder="Edit your post..."
-                                    />
-                                    <button onClick={() => handleEdit(post.id)}>Save</button>
-                                    <button onClick={() => setEditingPostId(null)}>Cancel</button>
-                                </div>
-                            ) : (
-                                <div>
-                                    <p className="post-content">{post.content}</p>
-                                    <button onClick={() => { setEditingPostId(post.id); setEditedContent(post.content); }}>Edit</button>
-                                    <button onClick={() => handleDelete(post.id)}>Delete</button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
+  const handleEditPost = async (postId, newCaption) => {
+    try {
+      await threadsUtils.editPost(postId, newCaption, accessToken);
+      setPosts(posts.map(post => post.id === postId ? { ...post, caption: newCaption } : post));
+    } catch (error) {
+      console.error('Error editing post:', error);
+    }
+  };
+
+  return (
+    <div>
+      {isLoggedIn && (
+        <div>
+          <h2>Threads Posts</h2>
+          {posts.map(post => (
+            <div key={post.id}>
+              <p>{post.caption}</p>
+              <img src={post.media_url} alt={post.caption} />
+              <button onClick={() => handleDeletePost(post.id)}>Delete</button>
+              <button onClick={() => {
+                const newCaption = prompt('Enter new caption:', post.caption);
+                if (newCaption) handleEditPost(post.id, newCaption);
+              }}>Edit</button>
+            </div>
+          ))}
         </div>
-    );
-};
+      )}
+    </div>
+  );
+}
 
-export default ThreadsPosts;
+export default ThreadsAPI;

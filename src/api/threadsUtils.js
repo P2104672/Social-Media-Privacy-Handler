@@ -1,54 +1,51 @@
-// api/threadsUtils.js
+// threadsUtils.js
+import axios from 'axios';
 
-// Example function to retrieve Threads access token
-export const getThreadsAccessToken = async () => {
-    // Retrieve the access token from local storage or another secure method
-    const accessToken = localStorage.getItem('threads_access_token');
-
-    if (!accessToken) {
-        throw new Error('No access token found. Please authenticate.');
+const threadsUtils = {
+  getThreadsAccessToken: async () => {
+    try {
+      const accessToken = '1';
+      
+      if (!accessToken) {
+        throw new Error('No access token available');
+      }
+      
+      return { accessToken };
+    } catch (error) {
+      console.error('Error fetching Threads access token:', error);
+      throw error;
     }
+  },
 
-    return { accessToken };
+  fetchPosts: async (accessToken) => {
+    try {
+      const response = await axios.get(`https://graph.threads.net/v1.0/me?ields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}`);
+      return response.data.data;
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      throw error;
+    }
+  },
+
+  deletePost: async (postId, accessToken) => {
+    try {
+      await axios.delete(`https://graph.threads.net/v1.0/me?ields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}"`);
+      return true;
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      throw error;
+    }
+  },
+
+  editPost: async (postId, newCaption, accessToken) => {
+    try {
+      await axios.post(`https://graph.threads.net/v1.0/me?ields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}"`);
+      return true;
+    } catch (error) {
+      console.error('Error editing post:', error);
+      throw error;
+    }
+  },
 };
 
-// Function to fetch posts from Threads
-export const fetchThreadsPosts = async () => {
-    const { accessToken } = await getThreadsAccessToken();
-    const response = await fetch(`https://api.threads.net/v1/posts?access_token=${accessToken}`);
-
-    if (!response.ok) {
-        throw new Error('Failed to fetch posts');
-    }
-
-    const data = await response.json();
-    return data.posts; // Assuming the response structure contains a 'posts' key
-};
-
-// Function to delete a post
-export const deleteThreadsPost = async (postId) => {
-    const { accessToken } = await getThreadsAccessToken();
-    const response = await fetch(`https://api.threads.net/v1/posts/${postId}?access_token=${accessToken}`, {
-        method: 'DELETE',
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to delete post');
-    }
-};
-
-// Function to edit a post
-export const editThreadsPost = async (postId, updatedContent) => {
-    const { accessToken } = await getThreadsAccessToken();
-    const response = await fetch(`https://api.threads.net/v1/posts/${postId}?access_token=${accessToken}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content: updatedContent }),
-    });
-
-    if (!response.ok) {
-        throw new Error('Failed to edit post');
-    }
-};
+export default threadsUtils;

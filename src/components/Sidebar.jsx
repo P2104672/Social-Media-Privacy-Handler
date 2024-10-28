@@ -43,21 +43,13 @@ const Sidebar = () => {
             <FontAwesomeIcon icon={faUser} />
             <span>Profile</span>
           </Link>
-          <Link to="/dashboard" className="sidebar-link">
-            <FontAwesomeIcon icon={faChartBar} />
-            <span>Dashboard</span>
-          </Link>
           <Link to="/search" className="sidebar-link">
             <FontAwesomeIcon icon={faSearch} />
             <span>Search</span>
           </Link>
-          <Link to="/post-management" className="sidebar-link">
-            <FontAwesomeIcon icon={faSearch} />
-            <span>Post Management</span>
-          </Link>
           <Link to="/DashboardSocialMeida" className="sidebar-link">
-            <FontAwesomeIcon icon={faSearch} />
-            <span>DashboardSocialMeida</span>
+            <FontAwesomeIcon icon={faChartBar} />
+            <span>Dashboard</span>
           </Link>
           
         </nav>

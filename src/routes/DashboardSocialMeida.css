@@ -1,227 +1,273 @@
 /* File: src/components/Dashboard.css */
 
 .dashboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 80px); 
-    margin-left: 220px; 
-    text-decoration: none;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); 
+  margin-left: 220px; 
+  text-decoration: none;
+}
 /* Main Dashboard Layout */
 .dashboard {
-    display: grid; 
-    grid-template-columns: 1fr 1fr 1fr; 
-    grid-template-rows: 1fr 1fr 1fr; 
-    gap: 2em 2em; 
-    grid-template-areas: 
-        "facebook instagram x"
-        "facebook instagram x"
-        "facebook instagram x"; 
-    }
-    .facebook { grid-area: facebook; }
-    .instagram { grid-area: instagram; }
-    .x { grid-area: x; }
-  
-  /* Common Styles for Post Containers */
-  .facebook, .instagram, .x {
-    border: 1px solid #ccc;
-    padding: 70px 150px 70px; /* The size of the container the middle one is the weight*/
-    border-radius: 10px;
-    background-color: #f9f9f9;
-    color: black; /* Make sure text is black */
-    height: fit-content; /* Ensure posts fit the container size */
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  grid-template-rows: 1fr 1fr 1fr; 
+  gap: 2em 2em; 
+  grid-template-areas: 
+      "facebook instagram threads"
+      "facebook instagram threads"
+      "facebook instagram threads"; 
   }
-  
-  /* Facebook-specific styles */
+  .facebook { grid-area: facebook; }
+  .instagram { grid-area: instagram; }
+  .threads { grid-area: threads; }
+
+/* Common Styles for Post Containers */
+.facebook, .instagram, .threads {
+  border: 1px solid #ccc;
+  padding: 70px 150px 70px; /* The size of the container the middle one is the weight*/
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  color: black; /* Make sure text is black */
+  height: fit-content; /* Ensure posts fit the container size */
+}
+
+/* Facebook-specific styles */
 /* DashboardSocialMeida.css */
 
 .facebook {
-  background-color: #f0f2f5;
-  padding: 20px;
-  font-family: Arial, sans-serif;
+background-color: #f0f2f5;
+padding: 20px;
+font-family: Arial, sans-serif;
 }
 
-.search-results-container {
-  max-width: 600px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  padding: 20px;
+.search-results-container, .posts-container {
+max-width: 600px;
+margin: 0 auto;
+background: white;
+border-radius: 8px;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+padding: 20px;
 }
 
 .loader {
-  text-align: center;
-  font-size: 18px;
-  color: #007bff;
+text-align: center;
+font-size: 18px;
+color: #007bff;
 }
 
 .error-message {
-  color: red;
-  text-align: center;
-  margin-bottom: 15px;
+color: red;
+text-align: center;
+margin-bottom: 15px;
 }
 
 .no-results {
-  text-align: center;
-  font-size: 16px;
-  color: #555;
+text-align: center;
+font-size: 16px;
+color: #555;
 }
 
 .post-card {
-  border-bottom: 1px solid #e9ebee;
-  padding: 15px 0;
+border-bottom: 1px solid #e9ebee;
+padding: 15px 0;
 }
 
+.post-card:hover {
+  transform: scale(1.02);
+  }
+  
 .post-message {
-  font-size: 16px;
-  line-height: 1.5;
-  color: #141823;
+font-size: 16px;
+line-height: 1.5;
+color: #141823;
 }
 
 .post-image {
-  max-width: 100%;
+max-width: 100%;
+height: auto;
+border-radius: 8px;
+margin: 10px 0;
+}
+
+.post-date {
+font-size: 12px;
+color: #606770;
+margin: 5px 0;
+}
+
+.comments-section {
+margin-top: 10px;
+padding-left: 20px;
+border-left: 2px solid #e9ebee;
+}
+
+.comment {
+font-size: 14px;
+color: #1c1e21;
+margin: 5px 0;
+}
+
+.comment p {
+display: inline;
+margin: 0;
+}
+
+.comment:before {
+content: '• '; /* Bullet before each comment */
+color: #606770;
+}
+/* Instagram-specific styles */
+.instagram {
+  background-color: #fafafa; /* Instagram's light gray background */
+  padding: 20px;
+}
+
+
+.gallery-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #262626;
+}
+
+.gallery {
+  padding: 10%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.image-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s;
+}
+
+.image-card:hover {
+  transform: scale(1.02);
+}
+
+.image-card img {
+  width: 100%;
   height: auto;
-  border-radius: 8px;
-  margin: 10px 0;
+  display: block;
+}
+
+.image-caption {
+  font-size: 14px;
+  color: #262626;
+  margin: 10px;
 }
 
 .post-date {
   font-size: 12px;
-  color: #606770;
-  margin: 5px 0;
+  color: #999;
+  margin: 0 10px 10px;
 }
 
-.comments-section {
+
+.instagram-post {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  background-color: #ffffff;
+}
+
+.instagram .post-header {
+  font-size: 0.9rem;
+  color: black; /* Ensure text is black */
+  margin-bottom: 5px;
+}
+
+.instagram .post-footer {
+  font-size: 0.8rem;
+  color: gray;
   margin-top: 10px;
-  padding-left: 20px;
-  border-left: 2px solid #e9ebee;
 }
 
-.comment {
-  font-size: 14px;
-  color: #1c1e21;
-  margin: 5px 0;
+.instagram-post img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
 }
 
-.comment p {
-  display: inline;
-  margin: 0;
+/* ThreadsPosts.css */
+
+.threads {
+background-color: #fafafa; /* Light gray background */
+padding: 20px;
 }
 
-.comment:before {
-  content: '• '; /* Bullet before each comment */
-  color: #606770;
+.gallery-title {
+font-size: 2rem;
+font-weight: bold;
+text-align: center;
+margin-bottom: 20px;
+color: #262626;
 }
-  /* Instagram-specific styles */
-  .instagram {
-    background-color: #fafafa; /* Instagram's light gray background */
-    padding: 20px;
-  }
-  
 
-  .gallery-title {
-    font-size: 2rem;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 20px;
-    color: #262626;
+.posts-container {
+padding: 10%;
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: 15px;
+}
+
+.image-card {
+background-color: #fff;
+border-radius: 10px;
+box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+overflow: hidden;
+transition: transform 0.3s;
+}
+
+.image-card:hover {
+transform: scale(1.02);
+}
+
+.image-card img {
+width: 100%;
+height: auto;
+display: block;
+}
+
+.image-caption {
+font-size: 14px;
+color: #262626;
+margin: 10px;
+}
+
+.post-date {
+font-size: 12px;
+color: #999;
+margin: 0 10px 10px;
+}
+
+.loader {
+text-align: center; /* Center the loader text */
+font-size: 1.2em; /* Larger font size for loader */
+color: #007bff; /* Blue color for loader */
+}
+
+.error-message {
+color: red; /* Red color for error messages */
+text-align: center; /* Center the error message */
+}
+
+.no-results {
+text-align: center; /* Center the no results message */
+color: #555; /* Gray color for no results */
+}
+
+/* Responsive Layout for smaller screens */
+@media (max-width: 1024px) {
+  .dashboard {
+    grid-template-columns: 1fr; /* Single column layout for smaller screens */
   }
-  
-  .gallery {
-    padding: 10%;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-  }
-  
-  .image-card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: transform 0.3s;
-  }
-  
-  .image-card:hover {
-    transform: scale(1.02);
-  }
-  
-  .image-card img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  
-  .image-caption {
-    font-size: 14px;
-    color: #262626;
-    margin: 10px;
-  }
-  
-  .post-date {
-    font-size: 12px;
-    color: #999;
-    margin: 0 10px 10px;
-  }
-  
-  
-  .instagram-post {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    background-color: #ffffff;
-  }
-  
-  .instagram .post-header {
-    font-size: 0.9rem;
-    color: black; /* Ensure text is black */
-    margin-bottom: 5px;
-  }
-  
-  .instagram .post-footer {
-    font-size: 0.8rem;
-    color: gray;
-    margin-top: 10px;
-  }
-  
-  .instagram-post img {
-    width: 100%;
-    height: auto;
-    border-radius: 5px;
-  }
-  
-  /* X (Twitter) specific styles */
-  .x {
-    background-color: #ffffff; /* Change X background to white for readability */
-    color: black; /* Ensure text is black */
-  }
-  
-  .x-post {
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    background-color: #f9f9f9; /* X (Twitter) lighter background */
-  }
-  
-  .x .post-header {
-    font-size: 0.9rem;
-    color: black; /* Ensure text is black */
-    margin-bottom: 5px;
-  }
-  
-  .x .post-footer {
-    font-size: 0.8rem;
-    color: gray;
-    margin-top: 10px;
-  }
-  
-  /* Responsive Layout for smaller screens */
-  @media (max-width: 1024px) {
-    .dashboard {
-      grid-template-columns: 1fr; /* Single column layout for smaller screens */
-    }
-  }
-  
+}
