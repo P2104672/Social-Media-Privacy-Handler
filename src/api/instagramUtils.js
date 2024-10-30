@@ -2,7 +2,7 @@
 
 export const getInstagramAccessToken = async () => {
     try {
-      const accessToken = '2';
+      const accessToken = '1';
       
       // Generate a new access token
       // https://developers.facebook.com/tools/accesstoken/
@@ -11,8 +11,14 @@ export const getInstagramAccessToken = async () => {
       }
       
       return { accessToken };
+      
+      
     } catch (error) {
       console.error('Error fetching Instagram access token:', error);
       throw error;
+      
     }
+    
   };
+
+  

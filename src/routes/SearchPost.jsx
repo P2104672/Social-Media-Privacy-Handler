@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import './SearchPost.css';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
-import { FaFacebookF, FaInstagram, FaLinkedin } from 'react-icons/fa';
-import { faXTwitter } from '@fortawesome/free-brands-svg-icons';
+import { FaFacebookF, FaInstagram } from 'react-icons/fa';
+import { faThreads } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFacebookAccessToken } from '../api/facebookUtils';
 import { getInstagramAccessToken } from '../api/instagramUtils';
+import threadsUtils from '../api/threadsUtils';
 import axios from 'axios';
 
 const SearchPost = () => {
@@ -22,9 +23,8 @@ const SearchPost = () => {
 
   const platforms = [
     { name: 'Facebook', icon: FaFacebookF },
-    { name: 'X', icon: () => <FontAwesomeIcon icon={faXTwitter} /> },
     { name: 'Instagram', icon: FaInstagram },
-    { name: 'LinkedIn', icon: FaLinkedin },
+    { name: 'Threads', icon: () => <FontAwesomeIcon icon={faThreads} /> },
   ];
 
   useEffect(() => {
@@ -33,15 +33,18 @@ const SearchPost = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [dateFilter, keywords, selectedPlatforms, specificDate, specificMonth]);
+  }, [dateFilter, keywords, selectedPlatforms, specificDate, specificMonth, allPosts]);
 
   const fetchPosts = async () => {
     setIsLoading(true);
+    let facebookPosts = [];
+    let instagramPosts = [];
+    let threadsPosts = [];
+
     try {
       const { accessToken } = await getFacebookAccessToken();
-      let facebookPosts = [];
       let nextUrl = `https://graph.facebook.com/v20.0/me/feed?fields=id,message,created_time,attachments&access_token=${accessToken}`;
-  
+
       // Fetch Facebook posts with pagination
       while (nextUrl) {
         const response = await fetch(nextUrl);
@@ -49,41 +52,49 @@ const SearchPost = () => {
           const errorData = await response.json();
           throw new Error(`Facebook API error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
         }
-  
+
         const data = await response.json();
         facebookPosts = facebookPosts.concat(data.data);
         nextUrl = data.paging && data.paging.next ? data.paging.next : null;
       }
-  
+
       // Map Facebook posts to desired structure
-      const postsWithComments = await Promise.all(facebookPosts.map(async post => {
+      facebookPosts = await Promise.all(facebookPosts.map(async post => {
         const commentsResponse = await fetch(`https://graph.facebook.com/v20.0/${post.id}/comments?access_token=${accessToken}`);
         const commentsData = await commentsResponse.json();
         return {
           id: post.id,
           message: post.message,
           created_time: post.created_time,
-          attachments: post.attachments, // Store attachments for later use
+          attachments: post.attachments,
           platform: 'Facebook',
-          comments: commentsData.data || [] // Include comments
+          comments: commentsData.data || []
         };
       }));
-  
-      // Fetch Instagram posts
-      const instagramPosts = await fetchInstagramPosts();
-  
-      // Combine Facebook and Instagram posts
-      const combinedPosts = [...postsWithComments, ...instagramPosts];
-  
-      setAllPosts(combinedPosts);
-      setDisplayedPosts(combinedPosts);
     } catch (err) {
-      console.error('Error fetching posts:', err);
-      setError(`Failed to fetch posts: ${err.message}`);
-      setDisplayedPosts([]);
-    } finally {
-      setIsLoading(false);
+      console.error('Error fetching Facebook posts:', err);
+      setError("Facebook limit reached. Please wait patiently for 15 minutes! (ฅ'ω'ฅ)");        
     }
+
+    try {
+      instagramPosts = await fetchInstagramPosts();
+    } catch (err) {
+      console.error('Error fetching Instagram posts:', err);
+      setError(`Failed to fetch Instagram posts: ${err.message}`);
+    }
+
+    try {
+      threadsPosts = await fetchThreadsPosts();
+    } catch (err) {
+      console.error('Error fetching Threads posts:', err);
+      setError(`Failed to fetch Threads posts: ${err.message}`);
+    }
+
+    // Combine all posts
+    const combinedPosts = [...facebookPosts, ...instagramPosts, ...threadsPosts];
+    setAllPosts(combinedPosts);
+    setDisplayedPosts(combinedPosts);
+    setIsLoading(false);
   };
 
   const fetchInstagramPosts = async () => {
@@ -99,24 +110,44 @@ const SearchPost = () => {
     const data = await response.json();
     return data.data.map(post => ({
       id: post.id,
-      message: post.caption,
+      message: post.caption ,
       created_time: post.timestamp,
       media_url: post.media_url,
       platform: 'Instagram',
       comments: []
     }));
   };
-
+  const fetchThreadsPosts = async () => {
+    const { accessToken } = await threadsUtils.getThreadsAccessToken();
+    const url = `https://graph.threads.net/v1.0/me/threads?fields=id,text,timestamp,media_url&access_token=${accessToken}`;
+  
+    const response = await fetch(url);
+  
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Threads API error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+    }
+  
+    const data = await response.json();
+    return data.data.map(post => ({
+      id: post.id,
+      message: post.text, 
+      created_time: post.timestamp,
+      media_url: post.media_url,
+      platform: 'Threads', 
+      comments: [] 
+    }));
+  };
   const applyFilters = () => {
     const searchKeywords = keywords.toLowerCase().split(' ');
     const now = new Date();
-    
+
     const filteredPosts = allPosts.filter(post => {
       const postDate = new Date(post.created_time);
-      const matchesKeywords = searchKeywords.every(keyword => 
+      const matchesKeywords = searchKeywords.every(keyword =>
         post.message && post.message.toLowerCase().includes(keyword)
       );
-  
+
       const matchesDate = (() => {
         switch (dateFilter) {
           case 'today':
@@ -139,11 +170,11 @@ const SearchPost = () => {
             return true;
         }
       })();
-  
+
       const matchesPlatform = selectedPlatforms.length === 0 || selectedPlatforms.includes(post.platform);
       return matchesKeywords && matchesDate && matchesPlatform;
     });
-  
+
     // Sort filtered posts by date (latest first)
     filteredPosts.sort((a, b) => new Date(b.created_time) - new Date(a.created_time));
     setDisplayedPosts(filteredPosts);
@@ -194,7 +225,7 @@ const SearchPost = () => {
       const { accessToken } = await getFacebookAccessToken();
       await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${accessToken}`);
       setAllPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
-      setDisplayedPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
+      setDisplayedPosts(prevPosts => prevPosts .map(post => post.id === postId ? { ...post, message: newMessage } : post));
     } catch (error) {
       console.error('Error updating post:', error);
       alert("An error occurred while trying to update the post. Please try again later.");
@@ -202,13 +233,20 @@ const SearchPost = () => {
   };
 
   const formatDate = (dateString) => {
+ const date = new Date(dateString);
+
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Invalid date"; // Return a placeholder for invalid dates
+    }
+
     return new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
-    }).format(new Date(dateString));
+    }).format(date);
   };
 
   return (
@@ -262,24 +300,28 @@ const SearchPost = () => {
             </button>
           ))}
         </div>
-        
+        <br/>
         <div className="search-results-container">
           {isLoading && <div className="loader">Loading...</div>}
           {error && <p className="error-message">{error}</p>}
           {displayedPosts.length > 0 ? (
             displayedPosts.map(post => (
               <div key={post.id} className="post-card">
-                <p className="post-message">{post.message}</p>
+                <p className='searchpost-platform'>{post.platform}</p>
+                <p className="post-message">{post.message || post.text}</p>
                 {post.platform === 'Facebook' && post.attachments && post.attachments.data && post.attachments.data.map(attachment => (
                   <img key={attachment.media.id} src={attachment.media.image.src} alt="Post attachment" className="post-image" />
                 ))}
                 {post.platform === 'Instagram' && post.media_url && (
                   <img src={post.media_url} alt="Post attachment" className="post-image" />
                 )}
+                {post.platform === 'Threads' && post.media_url && (
+                  <img src={post.media_url} alt="Post attachment" className="post-image" />
+                )}
                 <p className="post-date">{formatDate(post.created_time)}</p>
                 <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
                 <button onClick={() => {
-                  const newMessage = prompt("Enter new message:", post.message);
+                  const newMessage = prompt("Enter new message:", post.message || post.text);
                   if (newMessage) updatePost(post.id, newMessage);
                 }} className="edit-button">Edit</button>
                 <div className="comments-section">

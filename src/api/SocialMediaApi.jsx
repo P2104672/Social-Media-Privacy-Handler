@@ -37,7 +37,7 @@ export const connectSocialMedia = async (email, platform) => {
   }
 };
 
-// Ensure these functions are exported
+
 export const fetchFacebookPosts = async () => {
   try {
     // Check if FB object and its api method exist

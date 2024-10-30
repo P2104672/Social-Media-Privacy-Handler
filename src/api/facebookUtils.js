@@ -1,6 +1,6 @@
 export const getFacebookAccessToken = async () => {
   try {
-    const accessToken = '3';
+    const accessToken = '1';
     
     // Generate a new access token
     // https://developers.facebook.com/tools/accesstoken/

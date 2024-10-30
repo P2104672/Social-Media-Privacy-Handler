@@ -170,7 +170,6 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       <br/>
       <button onClick={handleLogout}>Logout</button>
       
-      <h3>Your Posts (Last Week):</h3>
       {posts
         .filter(post => {
           const postDate = new Date(post.created_time);

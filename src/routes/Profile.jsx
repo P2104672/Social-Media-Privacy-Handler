@@ -1,43 +1,16 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebook, faInstagram, faThreads } from '@fortawesome/free-brands-svg-icons';
-import FacebookLogin from '@greatsumini/react-facebook-login';
+import './Profile.css';
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
-import './Profile.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import axios from 'axios';
+import { faFacebook, faInstagram, faThreads } from '@fortawesome/free-brands-svg-icons';
 
-const Profile= () => {
+const ProfilePage = () => {
   const [user, setUser ] = useState(null);
-  const [connectedPlatforms, setConnectedPlatforms] = useState({
-    facebook: false,
-    instagram: false,
-    threads: false,
-  });
-  const [isFBInitialized, setIsFBInitialized] = useState(false);
+  const [connectedPlatforms, setConnectedPlatforms] = useState({});
 
   useEffect(() => {
-    // Initialize Facebook SDK
-    window.fbAsyncInit = function() {
-      window.FB.init({
-        appId: '1050996050019664',
-        cookie: true,
-        xfbml: true,
-        version: 'v20.0'
-      });
-      setIsFBInitialized(true);
-    };
-
-    // Load Facebook SDK
-    (function(d, s, id) {
-      var js, fjs = d.getElementsByTagName(s)[0];
-      if (d.getElementById(id)) return;
-      js = d.createElement(s); js.id = id;
-      js.src = "https://connect.facebook.net/en_US/sdk.js";
-      fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
-
-    // Fetch user data from an API
     axios.get('https://api.example.com/user')
       .then(response => {
         setUser (response.data);
@@ -46,23 +19,24 @@ const Profile= () => {
       .catch(error => console.error('Error fetching user data:', error));
   }, []);
 
-  const handleFacebookLogin = (response) => {
-    const userData = {
-      name: response.name,
-      email: response.email,
-      picture: {
-        data: {
-          url: response.picture.data.url,
-        },
-      },
-    };
-    setUser (userData);
-    setConnectedPlatforms(prev => ({ ...prev, facebook: true }));
-  };
-
   const handleConnectPlatform = (platform) => {
-    // Define the API endpoint for connecting the platform
-    const apiEndpoint = `https://api.example.com/connect/${platform}`;
+    let apiEndpoint;
+  
+    // Set the actual API endpoint based on the platform
+    switch (platform) {
+      case 'facebook':
+        apiEndpoint = 'https://your-api-url.com/connect/facebook'; // Replace with your actual Facebook connect URL
+        break;
+      case 'instagram':
+        apiEndpoint = 'https://api.instagram.com/oauth/authorize?client_id=1084505316407721&redirect_uri=https://localhost:3000&scope=user_profile,user_media&response_type=code'; // Replace with your actual Instagram connect URL
+        break;
+      case 'threads':
+        apiEndpoint = 'https://graph.threads.net/v1.0/me?ields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}'; //From Threads API Document
+        break;
+      default:
+        console.error('Unknown platform:', platform);
+        return;
+    }
   
     // Make an API call to connect the platform
     axios.post(apiEndpoint)
@@ -78,7 +52,6 @@ const Profile= () => {
         alert(`Failed to connect to ${platform}. Please try again.`);
       });
   };
-
   return (
     <div className="profile-page">
       <Sidebar />
@@ -88,45 +61,32 @@ const Profile= () => {
           <div>
             <h2>{user.name}</h2>
             <p>{user.email}</p>
-            {user.picture?.data?.url && (
-              <img src={user.picture.data.url} alt={user.name} />
-            )}
           </div>
-        )}
-        {!user && (
-          <FacebookLogin
-            appId="1050996050019664"
-            onSuccess={handleFacebookLogin}
-            onFail={(error) => console.log('Login Failed!', error)}
-            fields="name,email,picture"
-            scope="public_profile,email"
-            disabled={!isFBInitialized}
-          />
         )}
         <div className="connected-platforms">
           {connectedPlatforms.facebook && (
             <div>
               <FontAwesomeIcon icon={faFacebook} size="2x" />
-              <span>Facebook</span>
+              <span>Facebook: {connectedPlatforms.facebook.username}</span>
             </div>
           )}
           {connectedPlatforms.instagram && (
             <div>
               <FontAwesomeIcon icon={faInstagram} size="2x" />
-              <span>Instagram</span>
+              <span>Instagram: {connectedPlatforms.instagram.username}</span>
             </div>
           )}
           {connectedPlatforms.threads && (
             <div>
               <FontAwesomeIcon icon={faThreads} size="2x" />
-              <span>Threads</span>
+              <span>Threads: {connectedPlatforms.threads.username}</span>
             </div>
           )}
           {!connectedPlatforms.facebook && (
             <button onClick={() => handleConnectPlatform('facebook')}>
               <FontAwesomeIcon icon={faFacebook} size="2x" />
               <span>Connect Facebook</span>
-            </ button>
+            </button>
           )}
           {!connectedPlatforms.instagram && (
             <button onClick={() => handleConnectPlatform('instagram')}>
@@ -147,4 +107,4 @@ const Profile= () => {
   );
 };
 
-export default Profile;
+export default ProfilePage;
