@@ -1,13 +1,4 @@
-.profile-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(100vh - 80px); 
-    margin-left: 220px; 
-    text-decoration: none;
-    }
-  
+
   .profile-info {
     display: flex;
     flex-direction: column;
@@ -64,3 +55,168 @@
   .connected-platforms button svg {
     margin-right: 10px;
   }
+
+  .profile-page {
+    padding: 20px;
+    width: 900px;/* Maximum width */
+    margin: 0 auto; /* Center the content horizontally */
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60%;
+    text-decoration: none;
+}
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .social-media-section {
+    margin-top: 20px;
+  }
+  
+  .social-media-section h2 {
+    text-align: center;
+    color: #555;
+  }
+  
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .social-media-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .social-media-item:last-child {
+    border-bottom: none;
+  }
+  
+  .social-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+  }
+  
+  .social-media-item span {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .social-media-item p {
+    margin: 0;
+    color: #666;
+  }
+  
+  .loader {
+    text-align: center;
+    font-size: 18px;
+    color: #007bff;
+  }
+  
+  .error-message {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+  }
+/* Profile.css */
+
+/* Add some margin to the social media item */
+.social-media-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px; /* Space between items */
+}
+
+/* Add space between the username and the update button */
+.social-media-item span {
+  margin-right: 10px; /* Space between username and button */
+}
+
+/* Style for the buttons */
+.transparent-button {
+  background-color: transparent;
+  border: 1px solid #aeccec; /* Change this to your desired border color */
+  font-weight: bold;
+  color: #aeccec; /* Change this to your desired text color */
+  padding: 5px 10px; /* Adjust padding for button size */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.transparent-button:hover {
+  background-color: #aeccec; /* Change this to your desired hover background color */
+  color: white; /* Change this to your desired hover text color */
+}
+
+.transparent-submit-button {
+  background-color: transparent;
+  border: 1px solid #7ab69e; /* Change this to your desired border color */
+  font-weight: bold;
+  color: #7ab69e; /* Change this to your desired text color */
+  padding: 5px 10px; /* Adjust padding for button size */
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.transparent-submit-button:hover {
+  background-color: #7ab69e; /* Change this to your desired hover background color */
+  color: white; /* Change this to your desired hover text color */
+}
+
+
+
+
+/* Style for the access token input */
+.access-token-input {
+  display: flex;
+  align-items: center;
+  margin-top: 10px; /* Space above the input */
+  color: white;
+}
+
+.access-token-input input {
+  margin-left: 10px;
+  margin-right: 10px; /* Space between input and submit button */
+  padding: 10px; /* Increased padding for better usability */
+  border: 1px solid #ccc; /* Border for input */
+  border-radius: 8px;
+  background-color: #696969;
+  flex: 1; /* Allow input to take available space */
+  font-size: 15px; /* Font size for better readability */
+  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus effects */
+  color: white;
+}
+
+/* Input focus styles */
+.access-token-input input:focus {
+  border-color: #525252; /* Change border color on focus */
+  box-shadow: 0 0 5px rgba(209, 216, 223, 0.5); /* Add a subtle shadow effect */
+  outline: none; /* Remove default outline */
+}
+
+input::placeholder {
+  font-weight: bold;
+  opacity: 0.5;
+  color: rgb(255, 255, 255);
+}
+
+.social-icon {
+    width: 40px; /* Adjust size as needed */
+    height: 40px; /* Adjust size as needed */
+    margin-right: 10px;
+}

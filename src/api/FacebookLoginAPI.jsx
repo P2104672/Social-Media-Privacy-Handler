@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import FacebookLogin from '@greatsumini/react-facebook-login';
 import axios from 'axios';
@@ -7,17 +7,17 @@ import './FacebookLoginAPI.css';
 function FacebookLoginAPI({ onLoginSuccess }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [posts, setPosts] = useState([]);
+  // const [posts, setPosts] = useState([]);
   const [isFBInitialized, setIsFBInitialized] = useState(false);
 
-  const fetchPosts = useCallback(async (token) => {
-    try {
-      const response = await axios.get(`https://graph.facebook.com/v20.0/me/posts?fields=id,message,created_time&access_token=${token}`);
-      setPosts(response.data.data);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    }
-  }, []);
+  // const fetchPosts = useCallback(async (token) => {
+  //   try {
+  //     const response = await axios.get(`https://graph.facebook.com/v21.0/me/posts?fields=id,message,created_time&access_token=${token}`);
+  //     setPosts(response.data.data);
+  //   } catch (error) {
+  //     console.error('Error fetching posts:', error);
+  //   }
+  // }, []);
 
   useEffect(() => {
     // Initialize Facebook SDK
@@ -26,7 +26,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
         appId: '1050996050019664',
         cookie: true,
         xfbml: true,
-        version: 'v20.0'
+        version: 'v21.0'
       });
       setIsFBInitialized(true);
     };
@@ -47,7 +47,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       console.log('Stored user data:', parsedUserData); // Add this line
       setIsLoggedIn(true);
       setUserData(parsedUserData);
-      fetchPosts(parsedUserData.accessToken);
+      // fetchPosts(parsedUserData.accessToken);
       
       if (onLoginSuccess && typeof onLoginSuccess === 'function') {
         onLoginSuccess({
@@ -57,7 +57,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
         });
       }
     }
-  }, [fetchPosts, onLoginSuccess]); // Add this dependency array
+  }, [onLoginSuccess]); // Add this dependency array
 
   const handleFacebookLogin = (response) => {
     console.log('Login Success!', response);
@@ -70,7 +70,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     setUserData(userData);
     localStorage.setItem('facebookUserData', JSON.stringify(userData));
     fetchUserData(response.accessToken);
-    fetchPosts(response.accessToken);
+    // fetchPosts(response.accessToken);
     if (onLoginSuccess && typeof onLoginSuccess === 'function') {
       onLoginSuccess({
         accessToken: response.accessToken,
@@ -85,7 +85,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
 
   const fetchUserData = async (token) => {
     try {
-      const response = await axios.get(`https://graph.facebook.com/v20.0/me?fields=name,email,picture&access_token=${token}`);
+      const response = await axios.get(`https://graph.facebook.com/v21.0/me?fields=name,email,picture&access_token=${token}`);
       console.log('Additional user data:', response.data); // Add this line
       const additionalUserData = response.data;
       setUserData(prevData => {
@@ -102,43 +102,43 @@ function FacebookLoginAPI({ onLoginSuccess }) {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUserData(null);
-    setPosts([]);
+    // setPosts([]);
     // Clear localStorage
     localStorage.removeItem('facebookUserData');
     // You might want to call FB.logout() here if using the Facebook SDK
   };
 
-  const deletePost = async (postId) => {
-    try {
-      await axios.delete(`https://graph.facebook.com/v20.0/${postId}?access_token=${userData.accessToken}`);
-      setPosts(posts.filter(post => post.id !== postId));
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      // Check if the error is due to permissions
-      if (error.response && error.response.status === 403) {
-        alert("You don't have permission to delete this post. This may be because the post is older than 90 days or you don't have the necessary app permissions.");
-      } else {
-        alert("An error occurred while trying to delete the post. Please try again later.");
-      }
-    }
-  };
+  // const deletePost = async (postId) => {
+  //   try {
+  //     await axios.delete(`https://graph.facebook.com/v21.0/${postId}?access_token=${userData.accessToken}`);
+  //     setPosts(posts.filter(post => post.id !== postId));
+  //   } catch (error) {
+  //     console.error('Error deleting post:', error);
+  //     // Check if the error is due to permissions
+  //     if (error.response && error.response.status === 403) {
+  //       alert("You don't have permission to delete this post. This may be because the post is older than 90 days or you don't have the necessary app permissions.");
+  //     } else {
+  //       alert("An error occurred while trying to delete the post. Please try again later.");
+  //     }
+  //   }
+  // };
 
-  const updatePost = async (postId, newMessage) => {
-    try {
-      await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${userData.accessToken}`);
-      setPosts(posts.map(post => post.id === postId ? {...post, message: newMessage} : post));
-    } catch (error) {
-      console.error('Error updating post:', error);
-    }
-  };
+  // const updatePost = async (postId, newMessage) => {
+  //   try {
+  //     await axios.post(`https://graph.facebook.com/v21.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${userData.accessToken}`);
+  //     setPosts(posts.map(post => post.id === postId ? {...post, message: newMessage} : post));
+  //   } catch (error) {
+  //     console.error('Error updating post:', error);
+  //   }
+  // };
 
-  const formatDate = (dateString) => {
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    }).format(new Date(dateString));
-  };
+  // const formatDate = (dateString) => {
+  //   return new Intl.DateTimeFormat('en-US', {
+  //     year: 'numeric',
+  //     month: 'long',
+  //     day: 'numeric'
+  //   }).format(new Date(dateString));
+  // };
 
   if (!isLoggedIn) {
     return (
@@ -170,7 +170,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       <br/>
       <button onClick={handleLogout}>Logout</button>
       
-      {posts
+      {/* {posts
         .filter(post => {
           const postDate = new Date(post.created_time);
           const oneWeekAgo = new Date();
@@ -189,7 +189,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
               }}>Edit</button>
             </div>
           </div>
-        ))}
+        ))} */}
     </div>
   );
 }

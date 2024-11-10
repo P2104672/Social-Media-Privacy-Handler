@@ -43,7 +43,7 @@ const SearchPost = () => {
 
     try {
       const { accessToken } = await getFacebookAccessToken();
-      let nextUrl = `https://graph.facebook.com/v20.0/me/feed?fields=id,message,created_time,attachments&access_token=${accessToken}`;
+      let nextUrl = `https://graph.facebook.com/v20.0/me/feed?fields=id,message,permalink_url,created_time,attachments&access_token=${accessToken}`;
 
       // Fetch Facebook posts with pagination
       while (nextUrl) {
@@ -68,7 +68,8 @@ const SearchPost = () => {
           created_time: post.created_time,
           attachments: post.attachments,
           platform: 'Facebook',
-          comments: commentsData.data || []
+          comments: commentsData.data || [],
+          permalink: post.permalink_url
         };
       }));
     } catch (err) {
@@ -99,7 +100,7 @@ const SearchPost = () => {
 
   const fetchInstagramPosts = async () => {
     const { accessToken } = await getInstagramAccessToken();
-    const url = `https://graph.instagram.com/me/media?fields=id,caption,media_url,timestamp&access_token=${accessToken}`;
+    const url = `https://graph.instagram.com/me/media?fields=id,caption,media_url,permalink,timestamp&access_token=${accessToken}`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -110,34 +111,38 @@ const SearchPost = () => {
     const data = await response.json();
     return data.data.map(post => ({
       id: post.id,
-      message: post.caption ,
+      message: post.caption,
       created_time: post.timestamp,
       media_url: post.media_url,
       platform: 'Instagram',
-      comments: []
+      comments: [],
+      permalink: post.permalink
     }));
   };
+
   const fetchThreadsPosts = async () => {
     const { accessToken } = await threadsUtils.getThreadsAccessToken();
-    const url = `https://graph.threads.net/v1.0/me/threads?fields=id,text,timestamp,media_url&access_token=${accessToken}`;
-  
+    const url = `https://graph.threads.net/v1.0/me/threads?fields=id,text,timestamp,media_url,permalink&access_token=${accessToken}`;
+
     const response = await fetch(url);
-  
+
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(`Threads API error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
     }
-  
+
     const data = await response.json();
     return data.data.map(post => ({
       id: post.id,
-      message: post.text, 
+      message: post.text,
       created_time: post.timestamp,
       media_url: post.media_url,
-      platform: 'Threads', 
-      comments: [] 
+      platform: 'Threads',
+      comments: [],
+      permalink: post.permalink
     }));
   };
+
   const applyFilters = () => {
     const searchKeywords = keywords.toLowerCase().split(' ');
     const now = new Date();
@@ -223,9 +228,9 @@ const SearchPost = () => {
   const updatePost = async (postId, newMessage) => {
     try {
       const { accessToken } = await getFacebookAccessToken();
-      await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${accessToken}`);
+      await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${ encodeURIComponent(newMessage)}&access_token=${accessToken}`);
       setAllPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
-      setDisplayedPosts(prevPosts => prevPosts .map(post => post.id === postId ? { ...post, message: newMessage } : post));
+      setDisplayedPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
     } catch (error) {
       console.error('Error updating post:', error);
       alert("An error occurred while trying to update the post. Please try again later.");
@@ -233,7 +238,7 @@ const SearchPost = () => {
   };
 
   const formatDate = (dateString) => {
- const date = new Date(dateString);
+    const date = new Date(dateString);
 
     // Check if the date is valid
     if (isNaN(date.getTime())) {
@@ -300,7 +305,7 @@ const SearchPost = () => {
             </button>
           ))}
         </div>
-        <br/>
+        <br />
         <div className="search-results-container">
           {isLoading && <div className="loader">Loading...</div>}
           {error && <p className="error-message">{error}</p>}
@@ -308,16 +313,23 @@ const SearchPost = () => {
             displayedPosts.map(post => (
               <div key={post.id} className="post-card">
                 <p className='searchpost-platform'>{post.platform}</p>
-                <p className="post-message">{post.message || post.text}</p>
-                {post.platform === 'Facebook' && post.attachments && post.attachments.data && post.attachments.data.map(attachment => (
-                  <img key={attachment.media.id} src={attachment.media.image.src} alt="Post attachment" className="post-image" />
-                ))}
-                {post.platform === 'Instagram' && post.media_url && (
-                  <img src={post.media_url} alt="Post attachment" className="post-image" />
-                )}
-                {post.platform === 'Threads' && post.media_url && (
-                  <img src={post.media_url} alt="Post attachment" className="post-image" />
-                )}
+                <a 
+                  href={post.permalink} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="post-link"
+                >
+                  <p className="post-message">{post.message || post.text}</p>
+                  {post.platform === 'Facebook' && post.attachments && post.attachments.data && post.attachments.data.map(attachment => (
+                    <img key={attachment.media.id} src={attachment.media.image.src} alt="Post attachment" className="post-image" />
+                  ))}
+                  {post.platform === 'Instagram' && post.media_url && (
+                    <img src={post.media_url} alt="Post attachment" className="post-image" />
+                  )}
+                  {post.platform === 'Threads' && post.media_url && (
+                    <img src={post.media_url} alt="Post attachment" className="post-image" />
+                  )}
+                </a>
                 <p className="post-date">{formatDate(post.created_time)}</p>
                 <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
                 <button onClick={() => {
@@ -327,7 +339,8 @@ const SearchPost = () => {
                 <div className="comments-section">
                   {post.comments && post.comments.length > 0 ? (
                     post.comments.map(comment => (
-                      <div key={comment.id} className="comment">
+                      
+<div key={comment.id} className="comment">
                         <p>{comment.message}</p>
                       </div>
                     ))

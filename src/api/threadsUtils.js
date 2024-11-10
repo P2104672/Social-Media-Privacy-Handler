@@ -1,25 +1,23 @@
 // threadsUtils.js
 import axios from 'axios';
 
+let accessToken = '1';
+
 const threadsUtils = {
-  getThreadsAccessToken: async () => {
-    try {
-      const accessToken = '1';
-      
-      if (!accessToken) {
-        throw new Error('No access token available');
-      }
-      
-      return { accessToken };
-    } catch (error) {
-      console.error('Error fetching Threads access token:', error);
-      throw error;
-    }
+  setAccessToken: (newToken) => {
+    accessToken = newToken; // Update the access token
   },
 
-  fetchPosts: async (accessToken) => {
+  getThreadsAccessToken: async () => {
+    if (!accessToken) {
+      throw new Error('No access token available');
+    }
+    return { accessToken };
+  },
+
+  fetchPosts: async () => {
     try {
-      const response = await axios.get(`https://graph.threads.net/v1.0/me?ields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}`);
+      const response = await axios.get(`https://graph.threads.net/v1.0/me?fields=id,username,name,threads_profile_picture_url,threads_biography&access_token=${accessToken}`);
       return response.data.data;
     } catch (error) {
       console.error('Error fetching posts:', error);

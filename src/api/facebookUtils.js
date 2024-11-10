@@ -1,16 +1,19 @@
+// src/api/facebookUtils.js
+
+let facebookAccessToken = '1';
+
 export const getFacebookAccessToken = async () => {
-  try {
-    const accessToken = '1';
-    
-    // Generate a new access token
-    // https://developers.facebook.com/tools/accesstoken/
-    if (!accessToken) {
-      throw new Error('No access token available');
+    try {
+        if (!facebookAccessToken) {
+            throw new Error('No access token available');
+        }
+        return { accessToken: facebookAccessToken };
+    } catch (error) {
+        console.error('Error fetching Facebook access token:', error);
+        throw error;
     }
-    
-    return { accessToken };
-  } catch (error) {
-    console.error('Error fetching Facebook access token:', error);
-    throw error;
-  }
+};
+
+export const setFacebookAccessToken = (newToken) => {
+    facebookAccessToken = newToken; // Update the access token
 };

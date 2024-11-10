@@ -13,6 +13,7 @@
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
+  font-weight: bold;
 }
 
 /* Closed sidebar is translated out of view */
@@ -35,6 +36,7 @@
   transition: all 0.3s ease;
   padding: 8px 16px;
   z-index: 2;
+  font-weight: bold;
 }
 
 .sidebar-toggle:hover {
@@ -57,7 +59,7 @@
   text-decoration: none;
   transition: all 0.3s ease;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: bold;
   border-radius: 50px;
   margin-left: -10px;
   position: relative;
