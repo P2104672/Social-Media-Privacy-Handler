@@ -126,7 +126,7 @@
             </div>
           ))
         ) : (
-          <p>No comments.</p>
+          <p> </p>
         )}
       </div>
     </div>

@@ -162,75 +162,77 @@ const Profile = () => {
   }
 
   return (
-    <div className="profile-page">
-      <Sidebar />
-      <h1>Your Profile</h1>
-      <div className="social-media-section">
-        <h2>Social Media Accounts</h2>
-        <ul>
-          {userData.facebook && (
-            <li className="social-media-item">
-              <img src={userData.facebook.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Facebook_f_logo_%282019%29.svg'} alt="Facebook icon" className="social-icon" />
-              <span>{userData.facebook.username || 'Username not available'}</span>
-              <button onClick={() => setShowFacebookInput(!showFacebookInput)} className="transparent-button">
-                Update Token
-              </button>
-              {showFacebookInput && (
-                <div className="access-token-input">
-                  <input
-                    type="text"
-                    value={newFacebookToken}
-                    onChange={handleFacebookTokenChange}
-                    placeholder="Enter your Facebook access token"
-                  />
-                  <button onClick={handleFacebookTokenSubmit} className="transparent-submit-button">Submit</button>
-                </div>
-              )}
-            </li>
-          )}
-          {userData.instagram && (
-            <li className="social-media-item">
-              <img src={userData.instagram.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} alt="Instagram icon" className="social-icon" />
-              <span>{userData.instagram.username || 'Username not available'}</span>
-              <button onClick={() => setShowInstagramInput(!showInstagramInput)} className="transparent-button">
-                Update Token
-              </button>
-              {showInstagramInput && (
-                <div className="access-token-input">
-                  <input
-                    type="text"
-                    value={newInstagramToken}
-                    onChange={handleInstagramTokenChange}
-                    placeholder="Enter your Instagram access token"
-                  />
-                  <button onClick={handleInstagramTokenSubmit} className="transparent-submit-button">Submit</button>
-                </div>
-              )}
-            </li>
-          )}
-          {userData.threads && (
-            <li className="social-media-item">
-              <img src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} alt="Threads icon" className="social-icon" />
-              <span>{userData.threads.username || 'Not Available'}</span>
-              <button onClick={() => setShowThreadsInput(!showThreadsInput)} className="transparent-button">
-                Update Token
-              </button>
-              {showThreadsInput && (
-                <div className="access-token-input">
-                  <input
-                    type=" text"
-                    value={newThreadsToken}
-                    onChange={handleThreadsTokenChange}
-                    placeholder="Enter your Threads access token"
-                  />
-                  <button onClick={handleThreadsTokenSubmit} className="transparent-submit-button">Submit</button>
-                </div>
-              )}
-            </li>
-          )}
-        </ul>
+    <div className='profile-container'>
+      <div className="profile-page">
+        <Sidebar />
+        <h1>Your Profile</h1>
+        <div className="social-media-section">
+          <h2>Social Media Accounts</h2>
+          <ul>
+            {userData.facebook && (
+              <li className="social-media-item">
+                <img src={userData.facebook.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Facebook_f_logo_%282019%29.svg'} alt="Facebook icon" className="social-icon" />
+                <span>{userData.facebook.username || 'Username not available'}</span>
+                <button onClick={() => setShowFacebookInput(!showFacebookInput)} className="transparent-button">
+                  Update Token
+                </button>
+                {showFacebookInput && (
+                  <div className="access-token-input">
+                    <input
+                      type="text"
+                      value={newFacebookToken}
+                      onChange={handleFacebookTokenChange}
+                      placeholder="Enter your Facebook access token"
+                    />
+                    <button onClick={handleFacebookTokenSubmit} className="transparent-submit-button">Submit</button>
+                  </div>
+                )}
+              </li>
+            )}
+            {userData.instagram && (
+              <li className="social-media-item">
+                <img src={userData.instagram.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} alt="Instagram icon" className="social-icon" />
+                <span>{userData.instagram.username || 'Username not available'}</span>
+                <button onClick={() => setShowInstagramInput(!showInstagramInput)} className="transparent-button">
+                  Update Token
+                </button>
+                {showInstagramInput && (
+                  <div className="access-token-input">
+                    <input
+                      type="text"
+                      value={newInstagramToken}
+                      onChange={handleInstagramTokenChange}
+                      placeholder="Enter your Instagram access token"
+                    />
+                    <button onClick={handleInstagramTokenSubmit} className="transparent-submit-button">Submit</button>
+                  </div>
+                )}
+              </li>
+            )}
+            {userData.threads && (
+              <li className="social-media-item">
+                <img src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} alt="Threads icon" className="social-icon" />
+                <span>{userData.threads.username || 'Not Available'}</span>
+                <button onClick={() => setShowThreadsInput(!showThreadsInput)} className="transparent-button">
+                  Update Token
+                </button>
+                {showThreadsInput && (
+                  <div className="access-token-input">
+                    <input
+                      type=" text"
+                      value={newThreadsToken}
+                      onChange={handleThreadsTokenChange}
+                      placeholder="Enter your Threads access token"
+                    />
+                    <button onClick={handleThreadsTokenSubmit} className="transparent-submit-button">Submit</button>
+                  </div>
+                )}
+              </li>
+            )}
+          </ul>
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 };
