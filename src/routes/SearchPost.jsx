@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import './SearchPost.css';
 import Footer from '../components/Footer';
 import Sidebar from '../components/Sidebar';
+import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { faThreads } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { getFacebookAccessToken } from '../api/facebookUtils';
 import { getInstagramAccessToken } from '../api/instagramUtils';
 import threadsUtils from '../api/threadsUtils';
-import axios from 'axios';
 
 const SearchPost = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -20,6 +20,11 @@ const SearchPost = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [specificDate, setSpecificDate] = useState('');
   const [specificMonth, setSpecificMonth] = useState('');
+  const [sensitiveWarnings, setSensitiveWarnings] = useState([]); // State for sensitive content warnings
+  const [snippets, setSnippets] = useState([]);
+  const [notification, setNotification] = useState('');
+  const [isDetecting, setIsDetecting] = useState(false);
+
 
   const platforms = [
     { name: 'Facebook', icon: FaFacebookF },
@@ -35,6 +40,85 @@ const SearchPost = () => {
     applyFilters();
   }, [dateFilter, keywords, selectedPlatforms, specificDate, specificMonth, allPosts]);
 
+  const goToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  
+  const detectSensitiveContent = () => {
+    setIsDetecting(true); // Set loading state to true
+    const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide']; // Expanded keywords
+    const warnings = [];
+    const newSnippets = [];
+    const maxLength = 50;
+  
+    // Regular expressions for detecting sensitive information
+    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+    const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
+    const phoneRegex = /(?:\+?\d{1,3})?[-. (]?(\d{1,4})[-. )]?(\d{1,4})[-. ]?(\d{1,9})/; // Basic phone number regex
+    const ssnRegex = /\b\d{3}-\d{2}-\d{4}\b/; // SSN format: XXX-XX-XXXX
+    const urlRegex = /https?:\/\/[^\s]+/; // Basic URL regex
+  
+
+    const truncateText = (text, maxLength) => {
+      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    };
+  
+    displayedPosts.forEach(post => {
+      const postContent = post.message || post.text || '';
+      const detectedWords = [];
+      
+      // Check for sensitive keywords
+      sensitiveKeywords.forEach(keyword => {
+        if (postContent.toLowerCase().includes(keyword)) {
+          detectedWords.push(keyword);
+        }
+      });
+  
+      // Check for email addresses
+      if (emailRegex.test(postContent)) {
+        detectedWords.push('email address');
+      }
+  
+      // Check for credit card numbers
+      if (creditCardRegex.test(postContent)) {
+        detectedWords.push('credit card number');
+      }
+  
+      // Check for phone numbers
+      if (phoneRegex.test(postContent)) {
+        detectedWords.push('phone number');
+      }
+  
+      // Check for Social Security Numbers
+      if (ssnRegex.test(postContent)) {
+        detectedWords.push('Social Security number');
+      }
+  
+      // Check for URLs
+      if (urlRegex.test(postContent)) {
+        detectedWords.push('URL');
+      }
+  
+      // If any sensitive content is detected, create a warning and a snippet
+      if (detectedWords.length > 0) {
+        warnings.push({
+          postId: post.id,
+          words: detectedWords,
+        });
+  
+        newSnippets.push({
+          postId: post.id,
+          snippet: truncateText(postContent, maxLength), // Shortened version
+        });
+      }
+    });
+  
+
+    setSensitiveWarnings(warnings);
+    setSnippets(newSnippets);
+    setNotification('Sensitive content detection completed.');
+    setIsDetecting(false);
+  };  
   const fetchPosts = async () => {
     setIsLoading(true);
     let facebookPosts = [];
@@ -68,7 +152,7 @@ const SearchPost = () => {
           created_time: post.created_time,
           attachments: post.attachments,
           platform: 'Facebook',
-          comments: commentsData.data || [],
+          comments: commentsData .data || [],
           permalink: post.permalink_url
         };
       }));
@@ -209,40 +293,13 @@ const SearchPost = () => {
     );
   };
 
-  const deletePost = async (postId) => {
-    try {
-      const { accessToken } = await getFacebookAccessToken();
-      await axios.delete(`https://graph.facebook.com/v20.0/${postId}?access_token=${accessToken}`);
-      setAllPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-      setDisplayedPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
-    } catch (error) {
-      console.error('Error deleting post:', error);
-      if (error.response && error.response.status === 403) {
-        alert("You don't have permission to delete this post. This may be because the post is older than 90 days or you don't have the necessary app permissions.");
-      } else {
-        alert("An error occurred while trying to delete the post. Please try again later.");
-      }
-    }
-  };
-
-  const updatePost = async (postId, newMessage) => {
-    try {
-      const { accessToken } = await getFacebookAccessToken();
-      await axios.post(`https://graph.facebook.com/v20.0/${postId}?message=${ encodeURIComponent(newMessage)}&access_token=${accessToken}`);
-      setAllPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
-      setDisplayedPosts(prevPosts => prevPosts.map(post => post.id === postId ? { ...post, message: newMessage } : post));
-    } catch (error) {
-      console.error('Error updating post:', error);
-      alert("An error occurred while trying to update the post. Please try again later.");
-    }
-  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
 
     // Check if the date is valid
     if (isNaN(date.getTime())) {
-      return "Invalid date"; // Return a placeholder for invalid dates
+      return "Invalid date";
     }
 
     return new Intl.DateTimeFormat('en-US', {
@@ -306,12 +363,28 @@ const SearchPost = () => {
           ))}
         </div>
         <br />
+        <button onClick={detectSensitiveContent} className="detect-button">
+        {isDetecting ? 'Detecting...' : 'Detect Sensitive Content'}
+        </button>
+      {notification && <div className="notification">{notification}</div>}
+      
+        {snippets.length > 0 ? (
+          snippets.map(snippet => (
+            <div key={snippet.postId} className="sensitive-snippet">
+              <p>Snippet: {snippet.snippet}</p>
+              <a href={`#post-${snippet.postId}`} className="view-post-link">View Full Post</a>
+            </div>
+          ))
+        ) : (
+          <p className="no-sensitive-posts"></p>
+        )}
+
         <div className="search-results-container">
           {isLoading && <div className="loader">Loading...</div>}
           {error && <p className="error-message">{error}</p>}
           {displayedPosts.length > 0 ? (
             displayedPosts.map(post => (
-              <div key={post.id} className="post-card">
+              <div key={post.id} id={`post-${post.id}`} className="post-card">  {/* use # to nav the post with sensitive content */}
                 <p className='searchpost-platform'>{post.platform}</p>
                 <a 
                   href={post.permalink} 
@@ -329,35 +402,29 @@ const SearchPost = () => {
                   {post.platform === 'Threads' && post.media_url && (
                     <img src={post.media_url} alt="Post attachment" className="post-image" />
                   )}
+                  <p className="post-date">{formatDate(post.created_time)}</p>
                 </a>
-                <p className="post-date">{formatDate(post.created_time)}</p>
-                <button onClick={() => deletePost(post.id)} className="delete-button">Delete</button>
-                <button onClick={() => {
-                  const newMessage = prompt("Enter new message:", post.message || post.text);
-                  if (newMessage) updatePost(post.id, newMessage);
-                }} className="edit-button">Edit</button>
-                <div className="comments-section">
-                  {post.comments && post.comments.length > 0 ? (
-                    post.comments.map(comment => (
-                      
-<div key={comment.id} className="comment">
-                        <p>{comment.message}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <p>No comments.</p>
-                  )}
-                </div>
+                {/* Display sensitive content warnings under the posts */}
+                {sensitiveWarnings
+                .filter(warning => warning.postId === post.id)
+                .map(warning => (
+                  <div key={warning.postId} className="sensitive-warning">
+                    <p>Warning: Sensitive content detected - {warning.words.join(', ')}</p>
+                  </div>
+                  ))}
               </div>
             ))
-          ) : (
+   ) : (
             <p className="no-results">No posts found. Try adjusting your search criteria.</p>
           )}
         </div>
       </div>
+
+      <button onClick={goToTop} className="go-to-top-button" aria-label="Go to top">
+        <FontAwesomeIcon icon={faArrowUp}  className="fa-lg" />
+      </button>
       <Footer />
     </div>
   );
-};
-
+}
 export default SearchPost;

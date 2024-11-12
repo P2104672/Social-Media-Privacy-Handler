@@ -14,6 +14,10 @@
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
+
+  html {
+    scroll-behavior: smooth; /* Enable smooth scrolling */
+  }
   
   .search-page {
     display: flex;
@@ -679,6 +683,108 @@ text-align: center; /* Center the error message */
 text-align: center; /* Center the no results message */
 color: #555; /* Gray color for no results */
 }
+
+.go-to-top-button {
+  position: fixed; /* Fixed position */
+  bottom: 80px; /* Distance from the bottom */
+  right: 20px; /* Distance from the right */
+  background-color:rgb(53, 53, 53); /* Button color */
+  color: white; /* Icon color */
+  border: none; /* No border */
+  border-radius: 50%; /* Circular button */
+  width: 60px; /* Width */
+  height: 60px; /* Height */
+  display: flex; /* Center the icon */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  cursor: pointer; /* Pointer cursor on hover */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.go-to-top-button:hover {
+  background-color: #98c6e2;
+}
+/* Styles for the detection button */
+.detect-button {
+  background-color: rgb(53, 53, 53);
+  color: white;
+  border: none;
+  border-radius: 30px; /* Rounded corners */
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.detect-button:hover {
+  background-color: #b0ccf1; /* Darker green on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+/* Styles for the notification message */
+.notification {
+  
+  color: #ffcc00; /* Yellow text */
+  border: 1px solid #ffcc00; /* Yellow border */
+  border-radius: 5px;
+  padding: 15px;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+/* Styles for sensitive snippets */
+.sensitive-snippets {
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #444; /* Dark border */
+  border-radius: 8px;
+
+}
+
+/* Styles for each sensitive snippet */
+.sensitive-snippet {
+  margin-bottom: 10px;
+  padding: 6px;
+  background-color: #606467be;
+  border-radius: 5px;
+}
+
+/* Styles for the "View Full Post" link */
+.view-post-link {
+  color: #98c6e2; /* Green link color */
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.view-post-link:hover {
+  color: #d6d9d7; /* Darker green on hover */
+}
+
+/* Styles for the "No sensitive posts detected" message */
+.no-sensitive-posts {
+  color: #b0b0b0; /* Light gray text */
+  font-style: italic;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.sensitive-warning{
+  background-color: #fff3cd; /* Light yellow background */
+  color: #856404; /* Dark yellow/brown text */
+  border: 1px solid #ffeeba; /* Light yellow border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 15px; /* Padding around the text */
+  margin: 20px 0; /* Margin above and below the message */
+  display: flex; /* Flexbox for icon and text alignment */
+  align-items: center; /* Center items vertically */
+}
+
 
 /* Responsive Layout for smaller screens */
 @media (max-width: 1024px) {
