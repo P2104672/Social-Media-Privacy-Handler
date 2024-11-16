@@ -108,37 +108,6 @@ function FacebookLoginAPI({ onLoginSuccess }) {
     // You might want to call FB.logout() here if using the Facebook SDK
   };
 
-  // const deletePost = async (postId) => {
-  //   try {
-  //     await axios.delete(`https://graph.facebook.com/v21.0/${postId}?access_token=${userData.accessToken}`);
-  //     setPosts(posts.filter(post => post.id !== postId));
-  //   } catch (error) {
-  //     console.error('Error deleting post:', error);
-  //     // Check if the error is due to permissions
-  //     if (error.response && error.response.status === 403) {
-  //       alert("You don't have permission to delete this post. This may be because the post is older than 90 days or you don't have the necessary app permissions.");
-  //     } else {
-  //       alert("An error occurred while trying to delete the post. Please try again later.");
-  //     }
-  //   }
-  // };
-
-  // const updatePost = async (postId, newMessage) => {
-  //   try {
-  //     await axios.post(`https://graph.facebook.com/v21.0/${postId}?message=${encodeURIComponent(newMessage)}&access_token=${userData.accessToken}`);
-  //     setPosts(posts.map(post => post.id === postId ? {...post, message: newMessage} : post));
-  //   } catch (error) {
-  //     console.error('Error updating post:', error);
-  //   }
-  // };
-
-  // const formatDate = (dateString) => {
-  //   return new Intl.DateTimeFormat('en-US', {
-  //     year: 'numeric',
-  //     month: 'long',
-  //     day: 'numeric'
-  //   }).format(new Date(dateString));
-  // };
 
   if (!isLoggedIn) {
     return (
@@ -169,27 +138,7 @@ function FacebookLoginAPI({ onLoginSuccess }) {
       )}
       <br/>
       <button onClick={handleLogout}>Logout</button>
-      
-      {/* {posts
-        .filter(post => {
-          const postDate = new Date(post.created_time);
-          const oneWeekAgo = new Date();
-          oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-          return postDate >= oneWeekAgo;
-        })
-        .map(post => (
-          <div key={post.id} className="post-container">
-            <p className="post-message">{post.message}</p>
-            <p className="post-date">{formatDate(post.created_time)}</p>
-            <div className="post-actions">
-              <button className="post-button delete-button" onClick={() => deletePost(post.id)}>Delete</button>
-              <button className="post-button edit-button" onClick={() => {
-                const newMessage = prompt('Enter new message:', post.message);
-                if (newMessage) updatePost(post.id, newMessage);
-              }}>Edit</button>
-            </div>
-          </div>
-        ))} */}
+      {}
     </div>
   );
 }

@@ -152,8 +152,9 @@
     const fetchInstagramPosts = async () => {
       setIsLoading(true);
       try {
-        const { accessToken } = await getInstagramAccessToken(); // Fetch Instagram access token
-        const url = `https://graph.instagram.com/me/media?fields=id,caption,media_url,timestamp,permalink&access_token=${accessToken}`;
+        const { accessToken } = await getInstagramAccessToken();
+        // need the version of the API
+        const url = `https://graph.instagram.com/v11.0/me/media?fields=id,caption,media_url,timestamp,permalink&access_token=${accessToken}`;
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -217,7 +218,6 @@
           try {
               const { accessToken } = await threadsUtils.getThreadsAccessToken();
               const url = `https://graph.threads.net/v1.0/me/threads?fields=id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,permalink&access_token=${accessToken}`;
-  
               const response = await fetch(url);
   
               if (!response.ok) {

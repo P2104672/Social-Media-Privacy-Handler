@@ -4,11 +4,7 @@ import Footer from './components/Footer'
 import {gapi} from 'gapi-script';
 import { useEffect } from 'react'
 import FacebookLoginAPI from './api/FacebookLoginAPI'
-import InstagramAPI from './api/InstagramAPI'
-import ThreadsAPI from './api/ThreadsAPI';
-// import LinkedInOAuth from './api/LinkedInOAuth';
 import Login from './components/Login'
-// import TwitterLoginButton from './api/TwitterAuthButton';
 
 // facebook APP id=1050996050019664
 const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
@@ -54,12 +50,6 @@ function App() {
       <h1>Social Media Privacy Handler</h1>
       <Login/>
       <FacebookLoginAPI onLoginSuccess={handleLoginSuccess} />
-      <InstagramAPI/>
-      <ThreadsAPI/>
-      <div>
-      {/* <TwitterLoginButton /> */}
-    </div>
-      {/* <LinkedInOAuth /> */}
       <Footer />
     </div>
   )

@@ -29,7 +29,7 @@
   
   .search-container {
     width: 100%;
-    max-width: 800px;
+    max-width: 1100px;
   }
   
   .search-icon {
@@ -743,12 +743,36 @@ color: #555; /* Gray color for no results */
 
 }
 
+/* Styles for the container of sensitive snippets */
+.sensitive-snippet-container {
+  position: fixed; /* Fixed position for the container */
+  bottom: 200px; /* Distance from the bottom */
+  right: 20px; /* Distance from the right */
+  display: flex; /* Use flexbox for layout */
+  flex-direction: column; /* Stack snippets vertically */
+  gap: 10px; /* Space between snippets */
+  z-index: 10; /* Ensure it appears above other content */
+}
+
 /* Styles for each sensitive snippet */
 .sensitive-snippet {
-  margin-bottom: 10px;
-  padding: 6px;
-  background-color: #606467be;
-  border-radius: 5px;
+  padding: 10px; /* Increased padding for better spacing */
+  background-color: #606467be; /* Background color */
+  border-radius: 5px; /* Rounded corners */
+  color: white; /* Text color */
+  border: none; /* No border */
+  width: 500px; /* Width of each snippet */
+  height: auto; /* Height adjusts based on content */
+  display: flex; /* Use flexbox for centering */
+  align-items: center; /* Center vertically */
+  justify-content: space-between; /* Space between content */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+/* Optional: Change background color on hover */
+.sensitive-snippet:hover {
+  background-color: #50575d; /* Darker shade on hover */
 }
 
 /* Styles for the "View Full Post" link */
@@ -776,7 +800,8 @@ color: #555; /* Gray color for no results */
 
 .sensitive-warning{
   background-color: #fff3cd; /* Light yellow background */
-  color: #856404; /* Dark yellow/brown text */
+  color: #b61818; /* Dark yellow/brown text */
+  font-weight: bold; /* 
   border: 1px solid #ffeeba; /* Light yellow border */
   border-radius: 5px; /* Rounded corners */
   padding: 15px; /* Padding around the text */

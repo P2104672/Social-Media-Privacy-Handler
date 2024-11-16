@@ -368,6 +368,7 @@ const SearchPost = () => {
         </button>
       {notification && <div className="notification">{notification}</div>}
       
+      <div className="sensitive-snippet-container">
         {snippets.length > 0 ? (
           snippets.map(snippet => (
             <div key={snippet.postId} className="sensitive-snippet">
@@ -376,9 +377,10 @@ const SearchPost = () => {
             </div>
           ))
         ) : (
-          <p className="no-sensitive-posts"></p>
+          <p className="no-sensitive-posts">No sensitive posts available.</p>
         )}
-
+      </div>
+      <br/>
         <div className="search-results-container">
           {isLoading && <div className="loader">Loading...</div>}
           {error && <p className="error-message">{error}</p>}
