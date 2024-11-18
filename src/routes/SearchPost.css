@@ -29,7 +29,7 @@
   
   .search-container {
     width: 100%;
-    max-width: 1100px;
+    max-width: 1400px;
   }
   
   .search-icon {
@@ -462,7 +462,7 @@ font-family: Arial, sans-serif;
 }
 
 .search-results-container, .posts-container {
-max-width: 600px;
+width: 100%;
 margin: 0 auto;
 background: white;
 border-radius: 8px;
@@ -712,6 +712,7 @@ color: #555; /* Gray color for no results */
   border: none;
   border-radius: 30px; /* Rounded corners */
   padding: 12px 24px;
+  margin-bottom: 20px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
@@ -800,16 +801,31 @@ color: #555; /* Gray color for no results */
 
 .sensitive-warning{
   background-color: #fff3cd; /* Light yellow background */
-  color: #b61818; /* Dark yellow/brown text */
-  font-weight: bold; /* 
-  border: 1px solid #ffeeba; /* Light yellow border */
+  color: #b61818; 
+  font-weight: bold; 
+  border: 1px solid #ffeeba; 
   border-radius: 5px; /* Rounded corners */
   padding: 15px; /* Padding around the text */
   margin: 20px 0; /* Margin above and below the message */
   display: flex; /* Flexbox for icon and text alignment */
   align-items: center; /* Center items vertically */
 }
+.export-button {
+  background-color: transparent; /* Make background transparent */
+  border: none; /* Remove border */
+  cursor: pointer; /* Change cursor to pointer */
+  outline: none; /* Remove outline */
+  font-size: 24px; /* Adjust icon size */
+  color: #2c2c2c; /* Icon color */
+}
 
+.export-button:hover {
+  color: #ffffff; /* Change color on hover */
+}
+
+.highlight {
+  background-color: yellow; /* or any other styling */
+}
 
 /* Responsive Layout for smaller screens */
 @media (max-width: 1024px) {

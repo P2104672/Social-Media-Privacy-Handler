@@ -1,6 +1,6 @@
 // src/api/facebookUtils.js
 
-let facebookAccessToken = '';
+let facebookAccessToken = '1';
 
 export const getFacebookAccessToken = async () => {
     try {

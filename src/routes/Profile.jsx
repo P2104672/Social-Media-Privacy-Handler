@@ -38,9 +38,10 @@ const Profile = () => {
             setUserData(prevState => ({
               ...prevState,
               facebook: {
-                username: null, // Set username to null if token is expired
+                username: null,
                 profilePicture: null,
                 email: null,
+
               },
             }));
           } else {
@@ -60,14 +61,16 @@ const Profile = () => {
 
         // Fetch Instagram user data
         try {
-          const instagramResponse = await fetch(`https://graph.instagram.com/me?fields=id,username,profile_picture_url&access_token=${instagramAccessToken}`);
+          const instagramResponse = await fetch(`https://graph.instagram.com/me?fields=id,username,account_type,media_count,media&access_token=${instagramAccessToken}`);
           if (!instagramResponse.ok) {
             console.warn(`Failed to fetch Instagram user data: Token may be expired`);
             setUserData(prevState => ({
               ...prevState,
               instagram: {
                 username: null, // Set username to null if token is expired
-                profilePicture: null,
+                profil_picture: null,
+                media_count: null,
+                account_type: null,
               },
             }));
           } else {
@@ -76,7 +79,10 @@ const Profile = () => {
               ...prevState,
               instagram: {
                 username: instagramData.username,
-                profilePicture: instagramData.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png', 
+                profilePicture: instagramData.profile_picture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png', 
+                account_type: instagramData.account_type,
+                media_count: instagramData.media_count,
+
               },
             }));
           }
@@ -163,16 +169,25 @@ const Profile = () => {
 
   return (
     <div className='profile-container'>
+      <Sidebar />
+      <h1>Your Profile</h1>
       <div className="profile-page">
-        <Sidebar />
-        <h1>Your Profile</h1>
         <div className="social-media-section">
           <h2>Social Media Accounts</h2>
           <ul>
             {userData.facebook && (
               <li className="social-media-item">
-                <img src={userData.facebook.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Facebook_f_logo_%282019%29.svg'} alt="Facebook icon" className="social-icon" />
-                <span>{userData.facebook.username || 'Username not available'}</span>
+                <div className="row">
+                  <img 
+                    src={userData.facebook.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg'} 
+                    alt="Facebook icon" 
+                    className="social-icon" 
+                  />
+                  <span className="username">{userData.facebook.username || 'Username not available'}</span>
+                </div>
+                <div className="row">
+                  <p className="media-count">Number of Posts: {userData.facebook.tots}</p>
+                </div>
                 <button onClick={() => setShowFacebookInput(!showFacebookInput)} className="transparent-button">
                   Update Token
                 </button>
@@ -191,8 +206,20 @@ const Profile = () => {
             )}
             {userData.instagram && (
               <li className="social-media-item">
-                <img src={userData.instagram.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} alt="Instagram icon" className="social-icon" />
-                <span>{userData.instagram.username || 'Username not available'}</span>
+                <div className="row">
+                  <img 
+                    src={userData.instagram.profile_Picture || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} 
+                    alt="Instagram icon" 
+                    className="social-icon" 
+                  />
+                  <span className="username">{userData.instagram.username || 'Username not available'}</span>
+                </div>
+                <div className="row">
+                  <p className="media-count">Number of Posts: {userData.instagram.media_count}</p>
+                </div>
+                <div className="row">
+                  <p className="media-count">Account Type: <b>{userData.instagram.account_type}</b></p>
+                </div>
                 <button onClick={() => setShowInstagramInput(!showInstagramInput)} className="transparent-button">
                   Update Token
                 </button>
@@ -211,15 +238,23 @@ const Profile = () => {
             )}
             {userData.threads && (
               <li className="social-media-item">
-                <img src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} alt="Threads icon" className="social-icon" />
-                <span>{userData.threads.username || 'Not Available'}</span>
+                <div className="row">
+                  <img 
+                    src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} 
+                    alt="Threads icon" 
+                    className="social-icon" 
+                  />
+                  <span className="username">{userData.threads.username || 'Not Available'}</span>
+                </div>
+                <div className='row'>
+                </div>
                 <button onClick={() => setShowThreadsInput(!showThreadsInput)} className="transparent-button">
                   Update Token
                 </button>
                 {showThreadsInput && (
                   <div className="access-token-input">
                     <input
-                      type=" text"
+                      type="text"
                       value={newThreadsToken}
                       onChange={handleThreadsTokenChange}
                       placeholder="Enter your Threads access token"

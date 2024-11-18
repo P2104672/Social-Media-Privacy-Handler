@@ -6,9 +6,12 @@ import { faArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { FaFacebookF, FaInstagram } from 'react-icons/fa';
 import { faThreads } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { getFacebookAccessToken } from '../api/facebookUtils';
 import { getInstagramAccessToken } from '../api/instagramUtils';
 import threadsUtils from '../api/threadsUtils';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // Import the autoTable plugin
 
 const SearchPost = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -22,7 +25,7 @@ const SearchPost = () => {
   const [specificMonth, setSpecificMonth] = useState('');
   const [sensitiveWarnings, setSensitiveWarnings] = useState([]); // State for sensitive content warnings
   const [snippets, setSnippets] = useState([]);
-  const [notification, setNotification] = useState('');
+  const [notification] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
 
 
@@ -44,81 +47,131 @@ const SearchPost = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
-  const detectSensitiveContent = () => {
-    setIsDetecting(true); // Set loading state to true
-    const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide']; // Expanded keywords
-    const warnings = [];
-    const newSnippets = [];
-    const maxLength = 50;
-  
-    // Regular expressions for detecting sensitive information
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-    const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
-    const phoneRegex = /(?:\+?\d{1,3})?[-. (]?(\d{1,4})[-. )]?(\d{1,4})[-. ]?(\d{1,9})/; // Basic phone number regex
-    const ssnRegex = /\b\d{3}-\d{2}-\d{4}\b/; // SSN format: XXX-XX-XXXX
-    const urlRegex = /https?:\/\/[^\s]+/; // Basic URL regex
-  
+const detectSensitiveContent = () => {
+  setIsDetecting(true); // Set loading state to true
+  const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide']; // Expanded keywords
+  const warnings = [];
+  const newSnippets = [];
+  const maxLength = 50;
 
-    const truncateText = (text, maxLength) => {
-      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
-    };
-  
-    displayedPosts.forEach(post => {
-      const postContent = post.message || post.text || '';
-      const detectedWords = [];
-      
-      // Check for sensitive keywords
-      sensitiveKeywords.forEach(keyword => {
-        if (postContent.toLowerCase().includes(keyword)) {
-          detectedWords.push(keyword);
-        }
-      });
-  
-      // Check for email addresses
-      if (emailRegex.test(postContent)) {
-        detectedWords.push('email address');
-      }
-  
-      // Check for credit card numbers
-      if (creditCardRegex.test(postContent)) {
-        detectedWords.push('credit card number');
-      }
-  
-      // Check for phone numbers
-      if (phoneRegex.test(postContent)) {
-        detectedWords.push('phone number');
-      }
-  
-      // Check for Social Security Numbers
-      if (ssnRegex.test(postContent)) {
-        detectedWords.push('Social Security number');
-      }
-  
-      // Check for URLs
-      if (urlRegex.test(postContent)) {
-        detectedWords.push('URL');
-      }
-  
-      // If any sensitive content is detected, create a warning and a snippet
-      if (detectedWords.length > 0) {
-        warnings.push({
-          postId: post.id,
-          words: detectedWords,
-        });
-  
-        newSnippets.push({
-          postId: post.id,
-          snippet: truncateText(postContent, maxLength), // Shortened version
-        });
+  // Regular expressions for detecting sensitive information
+  const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+  const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
+  const phoneRegex = /(?:\+?\d{1,3})?[-. (]?(\d{1,4})[-. )]?(\d{1,4})[-. ]?(\d{1,9})/; // Basic phone number regex
+  const urlRegex = /https?:\/\/[^\s]+/; // Basic URL regex
+
+  const truncateText = (text, maxLength) => {
+    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+  };
+
+  displayedPosts.forEach(post => {
+    const postContent = post.message || post.text || '';
+    const detectedWords = [];
+    
+    // Check for sensitive keywords
+    sensitiveKeywords.forEach(keyword => {
+      if (postContent.toLowerCase().includes(keyword)) {
+        detectedWords.push(keyword);
       }
     });
-  
 
-    setSensitiveWarnings(warnings);
-    setSnippets(newSnippets);
-    setNotification('Sensitive content detection completed.');
-    setIsDetecting(false);
-  };  
+    // Check for email addresses
+    if (emailRegex.test(postContent)) {
+      detectedWords.push('email address');
+    }
+
+    // Check for credit card numbers
+    if (creditCardRegex.test(postContent)) {
+      detectedWords.push('credit card number');
+    }
+
+    // Check for phone numbers
+    if (phoneRegex.test(postContent)) {
+      detectedWords.push('phone number');
+    }
+
+    // Check for URLs
+    if (urlRegex.test(postContent)) {
+      detectedWords.push('URL');
+    }
+
+    // If any sensitive content is detected, create a warning and a snippet
+    if (detectedWords.length > 0) {
+      warnings.push({
+        postId: post.id,
+        words: detectedWords,
+      });
+
+      // Create a snippet without highlighting
+      newSnippets.push({
+        postId: post.id,
+        snippet: truncateText(postContent, maxLength), // Shortened version without highlighting
+      });
+    }
+  });
+
+  setSensitiveWarnings(warnings);
+  setSnippets(newSnippets);
+  
+  // Show a pop-up message with the completion notification
+  alert('Sensitive content detection completed.');
+
+  setIsDetecting(false);
+};   const exportSensitivePostsReport = () => {
+    const doc = new jsPDF();
+  
+    // Define the columns for the PDF
+    const columns = [
+      { header: 'PostID', dataKey: 'postId' },
+      { header: 'Platform', dataKey: 'platform' },
+      { header: 'Message', dataKey: 'message' },
+      { header: 'Created Time', dataKey: 'created_time' },
+      { header: 'Warnings', dataKey: 'detected_warnings' },
+    ];
+  
+    // Prepare the data for the PDF
+    const reportData = sensitiveWarnings.map(warning => {
+      const post = displayedPosts.find(post => post.id === warning.postId);
+      return {
+        postId: post.id,
+        platform: post.platform,
+        message: post.message || post.text,
+        created_time: post.created_time,
+        detected_warnings: warning.words.join(', ')
+      };
+    });
+  
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Sensitive Posts Report', 14, 22);
+  
+    // Generate the table
+    doc.autoTable(columns, reportData, { startY: 30 });
+  
+    // Save the PDF
+    const saveReport = () => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+      const day = String(today.getDate()).padStart(2, '0');
+
+      // Format the date as YYYY-MM-DD
+      const formattedDate = `${year}-${month}-${day}`;
+
+      // Create the filename
+      const filename = `sensitive_posts_report_${formattedDate}.pdf`;
+
+      // Save the document with the constructed filename
+      doc.save(filename);
+
+      // Show a pop-up message with the filename
+      alert(`Report saved as: ${filename}`);
+    };
+
+    // Example usage
+    saveReport();  };
+
+
   const fetchPosts = async () => {
     setIsLoading(true);
     let facebookPosts = [];
@@ -366,7 +419,14 @@ const SearchPost = () => {
         <button onClick={detectSensitiveContent} className="detect-button">
         {isDetecting ? 'Detecting...' : 'Detect Sensitive Content'}
         </button>
+        {/* export the sensitive posts */}
+        { !isDetecting && snippets.length > 0 && (
+          <button onClick={exportSensitivePostsReport} className="export-button" title="Export Sensitive Posts Report">
+            <FontAwesomeIcon icon={faFileExport} />
+          </button>
+        )}
       {notification && <div className="notification">{notification}</div>}
+      
       
       <div className="sensitive-snippet-container">
         {snippets.length > 0 ? (

@@ -99,7 +99,7 @@
   
     return (
       <div className="facebook">
-        <h1>Facebook</h1>
+        <h1 className='social-media-header'>Facebook</h1>
         {isLoading && <div className="loader">Loading...</div>}
         {error && (
           <p className="error-message">
@@ -184,7 +184,7 @@
     
     return (
       <div className="instagram">
-        <h1>Instagram</h1>
+        <h1 className='social-media-header'>Instagram</h1>
           {isLoading && <div className="loader">Loading...</div>}
           {error && <p className="error-message">{error}</p>}
           {posts.length > 0 ? (
@@ -269,7 +269,7 @@
   
       return (
           <div className="threads">
-              <h1>Threads</h1>
+              <h1 className='social-media-header'>Threads</h1>
                   {isLoading && <div className="loader">Loading...</div>}
                   {error && <p className="error-message">{error.line1}<br />{error.line2}</p>}
                   {posts.length > 0 ? (

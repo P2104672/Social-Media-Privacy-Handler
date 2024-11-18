@@ -19,52 +19,6 @@
     background-color: #f9f9f9;
   }
   
-  .connected-platforms {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .connected-platforms > div {
-    margin: 10px;
-  }
-  
-  .connected-platforms button {
-    background-color: #9cb8d6;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .connected-platforms button:hover {
-    background-color: #9cb8d6;
-  }
-  
-  .connected-platforms button:disabled {
-    background-color: #c0c0c0;
-    cursor: not-allowed;
-  }
-
-  .connected-platforms {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .connected-platforms > * {
-    margin: 10px;
-  }
-  
-  .connected-platforms button {
-    margin: 10px;
-    padding: 10px 20px;
-  }
-  
-  .connected-platforms button svg {
-    margin-right: 10px;
-  }
 
   .profile-page {
     padding: 20px;
@@ -85,7 +39,7 @@
   
   h1 {
     text-align: center;
-    color: #333;
+    color: #ffffff;
   }
   
   .social-media-section {
@@ -142,17 +96,42 @@
     font-weight: bold;
   }
 /* Profile.css */
-
-/* Add some margin to the social media item */
 .social-media-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px; /* Space between items */
+  background-color: #ffffff; /* Card background color */
+  width: 600px;
+  height: 200px;
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  padding: 15px; /* Padding inside the card */
+  margin: 10px 0; /* Space between items */
+  transition: transform 0.2s; /* Smooth hover effect */
 }
 
-/* Add space between the username and the update button */
-.social-media-item span {
-  margin-right: 10px; /* Space between username and button */
+.social-media-item:hover {
+  transform: translateY(-3px); /* Lift effect on hover */
+}
+
+.row {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  margin-bottom: 10px; /* Space between rows */
+}
+
+.social-icon {
+  width: 50px; /* Adjust icon size */
+  height: 50px; /* Adjust icon size */
+  border-radius: 50%; /* Circular icon */
+  margin-right: 15px; /* Space between icon and username */
+}
+
+.username {
+  font-size: 18px; /* Font size for username */
+  color: #333; /* Darker color for better readability */
+}
+
+.media-count {
+  color: #777; /* Lighter color for media count */
+  margin: 5px 0; /* Space above and below */
 }
 
 /* Style for the buttons */
@@ -210,6 +189,7 @@
   font-size: 15px; /* Font size for better readability */
   transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus effects */
   color: white;
+  align-items: center;
 }
 
 /* Input focus styles */
@@ -229,4 +209,58 @@ input::placeholder {
     width: 40px; /* Adjust size as needed */
     height: 40px; /* Adjust size as needed */
     margin-right: 10px;
+}
+
+.social-media-item {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  padding: 10px; /* Add padding for better spacing */
+  border-bottom: 1px solid #ddd; /* Existing border style */
+}
+
+.row {
+  display: flex;
+  align-items: center; /* Center the items vertically */
+  margin-bottom: 10px; /* Space between rows */
+}
+
+.social-icon {
+  width: 50px; /* Adjust size as needed */
+  height: 50px; /* Adjust size as needed */
+  border-radius: 50%; /* Keep the existing circular style */
+  margin-right: 15px; /* Space between icon and username */
+}
+
+.username {
+  font-weight: bold; /* Bold username */
+  color: #333; /* Existing color */
+}
+
+.media-count {
+  margin: 0; /* Remove default margin */
+  color: #666; /* Existing color */
+}
+
+.social-media-item {
+    margin-bottom: 20px;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+}
+
+.social-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.media-count, .followers-count {
+    margin: 5px 0;
+}
+
+.media-count i, .followers-count i {
+    margin-right: 5px;
+    color: #555;
 }
