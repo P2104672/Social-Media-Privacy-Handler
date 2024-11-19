@@ -174,29 +174,30 @@
 .access-token-input {
   display: flex;
   align-items: center;
-  margin-top: 10px; /* Space above the input */
+  margin-top: 15px; /* Space above the input */
   color: white;
 }
 
 .access-token-input input {
   margin-left: 10px;
-  margin-right: 10px; /* Space between input and submit button */
-  padding: 10px; /* Increased padding for better usability */
-  border: 1px solid #ccc; /* Border for input */
+  margin-right: 10px; 
+  padding: 10px; 
+  border: 1px solid #ccc; 
   border-radius: 8px;
   background-color: #696969;
-  flex: 1; /* Allow input to take available space */
-  font-size: 15px; /* Font size for better readability */
-  transition: border-color 0.3s, box-shadow 0.3s; /* Smooth transition for focus effects */
+  flex: 1; 
+  font-size: 15px; 
+  transition: border-color 0.3s, box-shadow 0.3s; 
   color: white;
   align-items: center;
+  width: 250px; /* the size of the input box */
 }
 
 /* Input focus styles */
 .access-token-input input:focus {
-  border-color: #525252; /* Change border color on focus */
-  box-shadow: 0 0 5px rgba(209, 216, 223, 0.5); /* Add a subtle shadow effect */
-  outline: none; /* Remove default outline */
+  border-color: #525252;
+  box-shadow: 0 0 5px rgba(209, 216, 223, 0.5);
+  outline: none; 
 }
 
 input::placeholder {
@@ -206,29 +207,29 @@ input::placeholder {
 }
 
 .social-icon {
-    width: 40px; /* Adjust size as needed */
-    height: 40px; /* Adjust size as needed */
+    width: 40px; 
+    height: 40px;
     margin-right: 10px;
 }
 
 .social-media-item {
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  padding: 10px; /* Add padding for better spacing */
-  border-bottom: 1px solid #ddd; /* Existing border style */
+  flex-direction: column; 
+  padding: 10px; 
+  border-bottom: 1px solid #ddd; 
 }
 
 .row {
   display: flex;
-  align-items: center; /* Center the items vertically */
+  align-items: center; 
   margin-bottom: 10px; /* Space between rows */
 }
 
 .social-icon {
-  width: 50px; /* Adjust size as needed */
-  height: 50px; /* Adjust size as needed */
-  border-radius: 50%; /* Keep the existing circular style */
-  margin-right: 15px; /* Space between icon and username */
+  width: 50px;
+  height: 50px;
+  border-radius: 50%; 
+  margin-right: 15px; 
 }
 
 .username {

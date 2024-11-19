@@ -1,17 +1,35 @@
+/* Reset default margin and padding */
+body, html {
+    margin: 0; /* Remove default body margin */
+    padding: 0; /* Remove default body padding */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
 /* Footer container styles */
 .footer {
     background-color: #3b3b3d;
     color: rgba(255, 255, 255, 0.601);
     text-align: center;
     padding: 5px;
-    position: fixed;
+    position: fixed; /* Keeps the footer fixed at the bottom */
     bottom: 0;
+    left: 0; /* Ensure footer starts from the left */
     width: 100%;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
     font-size: 14px;
     transition: width 0.3s ease-in-out;
+    z-index: 10; /* Ensure it appears above other content */
 }
 
 .footer p {
     margin: 5px 0;
+    padding-left: 220px; /*the center of the window */
+}
+
+/* Optional: Media query for responsive design */
+@media (max-width: 600px) {
+    .footer {
+        font-size: 12px; /* Adjust font size for smaller screens */
+        padding: 10px; /* Increase padding for better touch targets */
+    }
 }
