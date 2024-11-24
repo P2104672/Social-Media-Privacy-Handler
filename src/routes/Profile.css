@@ -99,7 +99,7 @@
 .social-media-item {
   background-color: #ffffff; /* Card background color */
   width: 600px;
-  height: 200px;
+  height: 300px;
   border-radius: 8px; /* Rounded corners */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
   padding: 15px; /* Padding inside the card */
@@ -167,6 +167,11 @@
   color: white; /* Change this to your desired hover text color */
 }
 
+.social-media-name{
+  left: 50px;
+  display: flex;
+  align-items: center;
+}
 
 
 

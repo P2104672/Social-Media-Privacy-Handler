@@ -35,7 +35,7 @@ const SearchPost = () => {
     { name: 'Threads', icon: () => <FontAwesomeIcon icon={faThreads} /> },
   ];
 
-  const API_KEY = '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'; // Replace with your actual API key
+  const API_KEY = '1'; // Replace with your actual API key
   const HUGGING_FACE_API_URL = 'https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english';
 
   useEffect(() => {

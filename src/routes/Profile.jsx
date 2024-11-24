@@ -243,6 +243,9 @@ useEffect(() => {
           <ul>
             {userData.facebook && (
               <li className="social-media-item">
+                <div className="social-media-name">
+                <h2 className="social-name">Facebook</h2>
+                </div>
                 <div className="row">
                   <img 
                     src={userData.facebook.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg'} 
@@ -272,6 +275,7 @@ useEffect(() => {
             )}
             {userData.instagram && (
                 <li className="social-media-item">
+                  <h2 className="social-name">Instagram</h2>
                     <div className="row">
                         <img 
                             src={userData.instagram.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} 
@@ -305,6 +309,7 @@ useEffect(() => {
             )}
             {userData.threads && (
               <li className="social-media-item">
+                <h2 className="social-name">Threads</h2>
                 <div className="row">
                   <img 
                     src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} 
