@@ -1,4 +1,4 @@
-// for Instagram Access Token, the app name: ins_fyp_new
+// for Instagram Access Token, the app name: Ins_fyp_Dec
 // api/instagramUtils.js
 
 

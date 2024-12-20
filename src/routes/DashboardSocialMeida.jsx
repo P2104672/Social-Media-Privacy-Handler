@@ -217,7 +217,7 @@
           setIsLoading(true);
           try {
               const { accessToken } = await threadsUtils.getThreadsAccessToken();
-              const url = `https://graph.threads.net/v1.0/me/threads?fields=id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,permalink&access_token=${accessToken}`;
+              const url = `https://graph.threads.net/v1.0/me/threads?fields=id,media_product_type,media_type,media_url,permalink,owner,username,text,timestamp,permalink,reposted_post&access_token=${accessToken}`;
               const response = await fetch(url);
   
               if (!response.ok) {
@@ -241,10 +241,21 @@
                               throw new Error(`Failed to fetch comments for post ${post.id}`);
                           }
                           const commentsData = await commentsResponse.json();
-                          return { ...post, comments: commentsData.data || [] };
+
+                          // Fetch reposted post details if it exists
+                          let repostedPost = null;
+                          if (post.reposted_post) {
+                              const repostedPostUrl = `https://graph.threads.net/v1.0/${post.reposted_post.id}?fields=id,media_product_type,media_type,media_url,permalink,username,text,timestamp&access_token=${accessToken}`;
+                              const repostedResponse = await fetch(repostedPostUrl);
+                              if (repostedResponse.ok) {
+                                  repostedPost = await repostedResponse.json();
+                              }
+                          }
+  
+                          return { ...post, comments: commentsData.data || [], repostedPost };
                       } catch (commentError) {
                           console.error(commentError);
-                          return { ...post, comments: [] }; // Return post with empty comments on error
+                          return { ...post, comments: [], repostedPost: null }; // Return post with empty comments and no reposted post on error
                       }
                   }));
                   setPosts(postsWithComments);
@@ -255,7 +266,7 @@
           } finally {
               setIsLoading(false);
           }
-      };
+      };  
   
       const formatDate = (dateString) => {
           return new Intl.DateTimeFormat('en-US', {
@@ -278,8 +289,18 @@
                       <a href={post.permalink} target="_blank" rel="noopener noreferrer">
                         {post.media_url && <img src={post.media_url} alt="Threads" />}
                         <p className='image-caption'>{post.text}</p>
-                        <p className="post-date">{formatDate(post.timestamp)}</p>
+                        
                       </a>
+                      {post.repostedPost && (
+                        <div className="reposted-post">
+                            <a href={post.repostedPost.permalink} target="_blank" rel="noopener noreferrer">
+                                <p>Reposted from: {post.repostedPost.username}</p>
+                                <p>{post.repostedPost.text}</p>
+                                {post.repostedPost.media_url && <img src={post.repostedPost.media_url} alt="Reposted Threads" />}
+                            </a>
+                           
+                        </div>
+                      )}
                       {post.comments.length > 0 && (
                         <div className="comments">
                           {post.comments.map(comment => (
@@ -289,6 +310,7 @@
                           ))}
                         </div>
                       )}
+                      <p className="post-date">{formatDate(post.timestamp)}</p>
                     </div>
                   ))
                 ) : (

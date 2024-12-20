@@ -253,6 +253,15 @@ color: #999;
 margin: 0 10px 10px;
 }
 
+.reposted-post {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.reposted-post .post-date {
+  margin-top: 10px;
+}
 .loader {
 text-align: center; /* Center the loader text */
 font-size: 1.2em; /* Larger font size for loader */
