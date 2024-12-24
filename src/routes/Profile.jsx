@@ -31,34 +31,56 @@ useEffect(() => {
           const { accessToken: instagramAccessToken } = await getInstagramAccessToken();
           const { accessToken: threadsAccessToken } = await threadsUtils.getThreadsAccessToken();
       
-          // Fetch Facebook user data
-          try {
-              const facebookResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,picture,email&access_token=${facebookAccessToken}`);
-              if (!facebookResponse.ok) {
-                  console.warn(`Failed to fetch Facebook user data: Token may be expired`);
-                  setUserData(prevState => ({
-                      ...prevState,
-                      facebook: {
-                          username: null,
-                          profilePicture: null,
-                          email: null,
-                          count_posts: null,
-                      },
-                  }));
-              } else {
-                  const facebookData = await facebookResponse.json();
-                  setUserData(prevState => ({
-                      ...prevState,
-                      facebook: {
-                          username: facebookData.name,
-                          profilePicture: facebookData.picture.data.url,
-                          email: facebookData.email,
-                      },
-                  }));
-              }
-          } catch (err) {
-              console.warn('Error fetching Facebook data:', err);
+        // Fetch Facebook user data
+        try {
+          const facebookResponse = await fetch(`https://graph.facebook.com/me?fields=id,name,picture,email&access_token=${facebookAccessToken}`);
+          if (!facebookResponse.ok) {
+            console.warn(`Failed to fetch Facebook user data: Token may be expired`);
+            setUserData(prevState => ({
+              ...prevState,
+              facebook: {
+                username: null,
+                profilePicture: null,
+                email: null,
+                count_posts: null,
+              },
+            }));
+          } else {
+            const facebookData = await facebookResponse.json();
+            setUserData(prevState => ({
+              ...prevState,
+              facebook: {
+                username: facebookData.name,
+                profilePicture: facebookData.picture.data.url,
+                email: facebookData.email,
+              },
+            }));
+
+            // Fetch user's posts count
+            const postsResponse = await fetch(`https://graph.facebook.com/me/posts?summary=total_count&access_token=${facebookAccessToken}`);
+            if (!postsResponse.ok) {
+              console.warn(`Failed to fetch user's posts count: ${postsResponse.statusText}`);
+              setUserData(prevState => ({
+                ...prevState,
+                facebook: {
+                  ...prevState.facebook,
+                  count_posts: null,
+                },
+              }));
+            } else {
+              const postsData = await postsResponse.json();
+              setUserData(prevState => ({
+                ...prevState,
+                facebook: {
+                  ...prevState.facebook,
+                  count_posts: postsData.summary.total_count,
+                },
+              }));
+            }
           }
+        } catch (err) {
+          console.warn('Error fetching Facebook data:', err);
+        }
       
           // Fetch Instagram user data
           try {
@@ -255,7 +277,7 @@ useEffect(() => {
                   <span className="username">{userData.facebook.username || 'Please Login !'}</span>
                 </div>
                 <div className="row">
-                  <p className="media-count">Number of Posts:<b>20</b></p>
+                  <p className="media-count">Number of Posts: <b>{userData.facebook.count_posts !== null ? userData.facebook.count_posts : 'N/A'}</b></p>
                 </div>
                 <button onClick={() => setShowFacebookInput(!showFacebookInput)} className="transparent-button">
                   Update Token

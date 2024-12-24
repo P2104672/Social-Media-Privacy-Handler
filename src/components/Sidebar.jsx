@@ -1,9 +1,7 @@
-// src/components/Sidebar.jsx
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes, faHome, faUser, faChartBar, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faHome, faUser , faChartBar, faSearch } from '@fortawesome/free-solid-svg-icons';
 import './Sidebar.css';
 
 const Sidebar = () => {
@@ -40,7 +38,7 @@ const Sidebar = () => {
             <span>Home</span>
           </Link>
           <Link to="/profile" className="sidebar-link">
-            <FontAwesomeIcon icon={faUser} />
+            <FontAwesomeIcon icon={faUser } />
             <span>Profile</span>
           </Link>
           <Link to="/search" className="sidebar-link">
@@ -51,11 +49,10 @@ const Sidebar = () => {
             <FontAwesomeIcon icon={faChartBar} />
             <span>Dashboard</span>
           </Link>
-          
         </nav>
       </div>
       <div className={`container ${!isOpen ? 'centered' : ''}`}>
-        
+        {/* Main content goes here */}
       </div>
     </>
   );

@@ -105,11 +105,13 @@ margin: 5px 0;
 margin-top: 10px;
 padding-left: 20px;
 border-left: 2px solid #e9ebee;
+
 }
 
 .comment {
 font-size: 14px;
 color: #1c1e21;
+text-decoration: none;
 margin: 5px 0;
 }
 
@@ -119,7 +121,7 @@ margin: 0;
 }
 
 .comment:before {
-content: '• '; /* Bullet before each comment */
+content: ' '; /* Bullet before each comment */
 color: #606770;
 }
 /* Instagram-specific styles */
@@ -261,6 +263,10 @@ margin: 0 10px 10px;
 
 .reposted-post .post-date {
   margin-top: 10px;
+}
+
+.comment-username{
+  color: #007bff;
 }
 .loader {
 text-align: center; /* Center the loader text */

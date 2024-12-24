@@ -24,6 +24,7 @@ body, html {
 .footer p {
     margin: 5px 0;
     padding-left: 220px; /*the center of the window */
+    color: white;
 }
 
 /* Optional: Media query for responsive design */

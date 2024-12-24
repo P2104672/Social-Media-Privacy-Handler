@@ -1,39 +1,19 @@
-import axios from 'axios';
+async function query(data) {
+	const response = await fetch(
+		"https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
+		{
+			headers: {
+				Authorization: "Bearer 1",
+				"Content-Type": "application/json",
+			},
+			method: "POST",
+			body: JSON.stringify(data),
+		}
+	);
+	const result = await response.json();
+	return result;
+}
 
-const sensitiveWords = [
-  'offensive', 'inappropriate', 'vulgar', 'hate', 'discriminatory',
-  // Add more sensitive words as needed
-];
-
-export const detectSensitiveContent = async (postUrl) => {
-  try {
-    // Fetch the post content from the provided URL
-    const response = await axios.get(postUrl);
-    const postContent = response.data.content; // Adjust this based on the actual API response structure
-
-    // Convert post content to lowercase for case-insensitive matching
-    const lowerCaseContent = postContent.toLowerCase();
-
-    // Check for sensitive words
-    const detectedWords = sensitiveWords.filter(word => 
-      lowerCaseContent.includes(word.toLowerCase())
-    );
-
-    if (detectedWords.length > 0) {
-      return {
-        hasSensitiveContent: true,
-        detectedWords: detectedWords
-      };
-    } else {
-      return {
-        hasSensitiveContent: false,
-        detectedWords: []
-      };
-    }
-  } catch (error) {
-    console.error('Error detecting sensitive content:', error);
-    return {
-      error: 'Failed to analyze the post content'
-    };
-  }
-};
+query({"inputs": "I like you. I love you"}).then((response) => {
+	console.log(JSON.stringify(response));
+});

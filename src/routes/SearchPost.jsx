@@ -12,7 +12,7 @@ import { getInstagramAccessToken } from '../api/instagramUtils';
 import threadsUtils from '../api/threadsUtils';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import axios from 'axios'
+
 
 const SearchPost = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -34,9 +34,6 @@ const SearchPost = () => {
     { name: 'Instagram', icon: FaInstagram },
     { name: 'Threads', icon: () => <FontAwesomeIcon icon={faThreads} /> },
   ];
-
-  const API_KEY = '123'; // Replace with your actual API key
-  const HUGGING_FACE_API_URL = 'https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english';
 
   useEffect(() => {
     fetchPosts();
@@ -116,17 +113,11 @@ const SearchPost = () => {
 
         // Call the Hugging Face API to check for negative sentiment
         try {
-            const response = await axios.post(HUGGING_FACE_API_URL, { inputs: postContent }, {
-                headers: {
-                    'Authorization': `Bearer ${API_KEY}`,
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            console.log('API Response:', response.data); // Log the API response
+            const response = await query({ "inputs": postContent }); // Call the Hugging Face function
+            console.log('API Response:', response); // Log the API response
 
             // Assuming the response format is an array of objects with label and score
-            const { label, score } = response.data[0]; // Adjust based on your actual response structure
+            const { label, score } = response[0]; // Adjust based on your actual response structure
             if (label === 'NEGATIVE' && score > 0.7) { // Check for negative label and score
                 warnings.push({
                     postId: post.id,
@@ -138,7 +129,7 @@ const SearchPost = () => {
                 });
             }
         } catch (error) {
-            console.error('Error detecting sensitive content from API:', error.response ? error.response.data : error.message);
+            console.error('Error detecting sensitive content from API:', error);
         }
     }
 
@@ -154,6 +145,22 @@ const SearchPost = () => {
     setIsDetecting(false);
 };
 
+// Hugging Face query function
+async function query(data) {
+    const response = await fetch(
+        "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
+        {
+            headers: {
+                Authorization: "Bearer 1", // Replace with your actual token
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify(data),
+        }
+    );
+    const result = await response.json();
+    return result;
+}
 
 const exportSensitivePostsReport = () => {
     const doc = new jsPDF();
