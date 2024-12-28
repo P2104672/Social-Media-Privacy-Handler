@@ -50,7 +50,7 @@ const SearchPost = () => {
   const detectSensitiveContent = async () => {
     setIsDetecting(true); // Set loading state to true
 
-    const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide']; // Expanded keywords
+    const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide', 'address']; // Expanded keywords
     const warnings = [];
     const newSnippets = [];
     const maxLength = 50;
@@ -386,6 +386,19 @@ const exportSensitivePostsReport = () => {
     }).format(date);
   };
 
+  const getPlatformColor = (platform) => {
+    switch (platform) {
+        case 'Facebook':
+            return '#3b5998'; // Facebook color
+        case 'Instagram':
+            return '#C13584'; // Instagram color
+        case 'Threads':
+            return '#262626'; // Threads color (dark gray)
+        default:
+            return '#ffffff'; // Default color (white)
+    }
+};
+
   return (
     <div className="searchpost-container">
       <Sidebar />
@@ -467,7 +480,12 @@ const exportSensitivePostsReport = () => {
           {displayedPosts.length > 0 ? (
             displayedPosts.map(post => (
               <div key={post.id} id={`post-${post.id}`} className="post-card">
-                <p className='searchpost-platform'>{post.platform}</p>
+                <p 
+                  className='searchpost-platform' 
+                  style={{ backgroundColor: getPlatformColor(post.platform), color: 'white', padding: '5px', borderRadius: '5px' }} // Apply styles here
+                >
+            {post.platform}
+        </p> {/* The platform Label*/} {/* The platform Label*/}
                 <a 
                   href={post.permalink} 
                   target="_blank" 

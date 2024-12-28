@@ -3,7 +3,7 @@ async function query(data) {
 		"https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
 		{
 			headers: {
-				Authorization: "Bearer 1",
+				Authorization: "1",
 				"Content-Type": "application/json",
 			},
 			method: "POST",

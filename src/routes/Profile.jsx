@@ -3,9 +3,12 @@ import { useEffect, useState } from 'react';
 import { getFacebookAccessToken, setFacebookAccessToken } from '../api/facebookUtils';
 import { getInstagramAccessToken, setInstagramAccessToken } from '../api/instagramUtils';
 import threadsUtils from '../api/threadsUtils';
-import './Profile.css'; // Import your CSS file for styling
+import './Profile.css'; 
 import Sidebar from '../components/Sidebar';
 import Footer from '../components/Footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFileAlt, faUserFriends } from '@fortawesome/free-solid-svg-icons'; // Import the icons
+
 
 const Profile = () => {
   const [userData, setUserData] = useState({
@@ -43,16 +46,23 @@ useEffect(() => {
                 profilePicture: null,
                 email: null,
                 count_posts: null,
+                followers_count: null, // Added followers count
+                bio: null, // Added bio
               },
             }));
           } else {
             const facebookData = await facebookResponse.json();
+            const friendsCount = facebookData.friends ? facebookData.friends.summary.total_count : 0; // Get friends count
+
             setUserData(prevState => ({
               ...prevState,
               facebook: {
                 username: facebookData.name,
                 profilePicture: facebookData.picture.data.url,
                 email: facebookData.email,
+                count_posts: null, // Will fetch posts count next
+                followers_count: friendsCount, // Set followers count
+                bio: facebookData.bio, // Facebook does not have a direct bio field
               },
             }));
 
@@ -81,137 +91,90 @@ useEffect(() => {
         } catch (err) {
           console.warn('Error fetching Facebook data:', err);
         }
-      
-          // Fetch Instagram user data
-          try {
-              const instagramResponse = await fetch(`https://graph.instagram.com/me?fields=id,username,profile_picture_url,followers_count,account_type,media_count,media,biography&access_token=${instagramAccessToken}`);
-              if (!instagramResponse.ok) {
-                  console.warn(`Failed to fetch Instagram user data: Token may be expired`);
-                  setUserData(prevState => ({
-                      ...prevState,
-                      instagram: {
-                          id: null,
-                          username: null,
-                          profile_picture_url: null,
-                          media_count: null,
-                          account_type: null,
-                          biography: null,
-                          followers_count: null,
-                      },
-                  }));
-              } else {
-                  const instagramData = await instagramResponse.json();
-                  const ig_user_id = instagramData.id;
-      
-                  // Fetch additional Instagram profile data
-                  const igResponse = await fetch(`https://graph.facebook.com/v21.0/${ig_user_id}?fields=biography,followers_count,profile_picture_url&access_token=${instagramAccessToken}`);
-                  let additionalInstagramData = {
-                      profile_picture_url: instagramData.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
-                      biography: instagramData.biography,
-                      followers_count: instagramData.followers_count
-                  };
-      
-                  if (igResponse.ok) {
-                      const instagramProfileData = await igResponse.json();
-                      additionalInstagramData = {
-                          profile_picture_url: instagramProfileData.profile_picture_url || additionalInstagramData.profile_picture_url,
-                          biography: instagramProfileData.biography || additionalInstagramData.biography,
-                          followers_count: instagramProfileData.followers_count || additionalInstagramData.followers_count
-                      };
-                  } else {
-                      console.warn(`Failed to fetch additional Instagram user data: Token may be expired`);
-                  }
-      
-                  // Update user data state with the retrieved information
-                  setUserData(prevState => ({
-                      ...prevState,
-                      instagram: {
-                          id: instagramData.id,
-                          username: instagramData.username,
-                          ...additionalInstagramData,
-                          media_count: instagramData.media_count,
-                          account_type: instagramData.account_type,
-                          
-                      },
-                  }));
-              }
-          } catch (error) {
-              console.error('Error fetching Instagram data:', error);
+
+        // Fetch Instagram user data
+        try {
+          const instagramResponse = await fetch(`https://graph.instagram.com/me?fields=id,username,profile_picture_url,followers_count,account_type,media_count,biography&access_token=${instagramAccessToken}`);
+          if (!instagramResponse.ok) {
+            console.warn(`Failed to fetch Instagram user data: Token may be expired`);
+            setUserData(prevState => ({
+              ...prevState,
+              instagram: {
+                id: null,
+                username: null,
+                profile_picture_url: null,
+                media_count: null,
+                account_type: null,
+                biography: null,
+                followers_count: null,
+              },
+            }));
+          } else {
+            const instagramData = await instagramResponse.json();
+            setUserData(prevState => ({
+              ...prevState,
+              instagram: {
+                id: instagramData.id,
+                username: instagramData.username,
+                profile_picture_url: instagramData.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+                media_count: instagramData.media_count,
+                account_type: instagramData.account_type ,
+                biography: instagramData.biography,
+                followers_count: instagramData.followers_count,
+              },
+            }));
           }
-      
-          // Fetch Threads user data
-          try {
-              const threadsResponse = await fetch(`https://graph.threads.net/v1.0/me?fields=id,name,threads_profile_picture_url,threads_biography&access_token=${threadsAccessToken}`);
-              if (!threadsResponse.ok) {
-                  console.warn(`Failed to fetch Threads user data: Token may be expired`);
-                  setUserData(prevState => ({
-                      ...prevState,
-                      threads: {
-                          id: null,
-                          username: null,
-                          profilePicture: null,
-                          views: null,
-                          likes: null,
-                          threads_biography: null,
-                      },
-                  }));
-              } else {
-                  const threadsData = await threadsResponse.json();
-                  const mediaId = threadsData.id; // Get media ID from threads data
-      
-                  // Check if mediaId is valid before fetching insights
-                  if (mediaId) {
-                      const insightsResponse = await fetch(`https://graph.threads.net/v1.0/${mediaId}/insights?&access_token=${threadsAccessToken}`);
-                      let views = null;
-                      let likes = null;
-      
-                      if (insightsResponse.ok) {
-                          const insightsData = await insightsResponse.json();
-                          views = insightsData.views; // Get views from insights data
-                          likes = insightsData.likes; // Get likes from insights data
-                      } else {
-                          console.warn('Failed to fetch insights data');
-                      }
-      
-                      // Update user data state with the retrieved information
-                      setUserData(prevState => ({
-                          ...prevState,
-                          threads: {
-                              username: threadsData.name,
-                              profilePicture: threadsData.threads_profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Threads_logo.png/1024px-Threads_logo.png',
-                              views: views,
-                              likes: likes,
-                              threads_biography: threadsData.threads_biography,
-                          },
-                      }));
-                  } else {
-                      console.warn('No media ID available to fetch insights');
-                      setUserData(prevState => ({
-                          ...prevState,
-                          threads: {
-                              username: threadsData.name,
-                              profilePicture: threadsData.threads_profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Threads_logo.png/1024px-Threads_logo.png', // Placeholder icon
-                              views: null,
-                              likes: null,
-                              threads_biography: threadsData.threads_biography
-                          },
-                      }));
-                  }
-              }
-          } catch (error) {
-              console.error('Error fetching Threads data:', error);
-              setError('Failed to load user data. Please try again later.');
-          } finally {
-              setLoading(false); // End loading state
+        } catch (error) {
+          console.error('Error fetching Instagram data:', error);
+        }
+
+        // Fetch Threads user data
+        try {
+          const threadsResponse = await fetch(`https://graph.threads.net/v1.0/me?fields=id,name,threads_profile_picture_url,threads_biography&access_token=${threadsAccessToken}`);
+          if (!threadsResponse.ok) {
+            console.warn(`Failed to fetch Threads user data: Token may be expired`);
+            setUserData(prevState => ({
+              ...prevState,
+              threads: {
+                id: null,
+                username: null,
+                profilePicture: null,
+                views: null,
+                likes: null,
+                threads_biography: null,
+                media_count: null,
+                followers_count: null
+              },
+            }));
+          } else {
+            const threadsData = await threadsResponse.json();
+            setUserData(prevState => ({
+              ...prevState,
+              threads: {
+                username: threadsData.name,
+                profilePicture: threadsData.threads_profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Threads_logo.png/1024px-Threads_logo.png',
+                views: null, // Placeholder, as views are not fetched
+                likes: null, // Placeholder, as likes are not fetched
+                threads_biography: threadsData.threads_biography,
+                media_count: threadsData.media_count, // Number of posts
+                followers_count: threadsData.followers_count // Number of followers
+              },
+            }));
           }
-      
-      } catch (error) {
-          console.error('Error in fetching user data:', error);
+        } catch (error) {
+          console.error('Error fetching Threads data:', error);
           setError('Failed to load user data. Please try again later.');
-      } 
+        } finally {
+          setLoading(false); // End loading state
+        }
+
+      } catch (error) {
+        console.error('Error in fetching user data:', error);
+        setError('Failed to load user data. Please try again later.');
+      }
     }
-      fetchUserData(); // Call the function to fetch user data//+
-    }, []);
+    fetchUserData(); // Call the function to fetch user data
+  }, []);
 
   const handleFacebookTokenChange = (e) => {
     setNewFacebookToken(e.target.value);
@@ -254,6 +217,8 @@ useEffect(() => {
     return <div className="error-message">{error}</div>;
   }
 
+  
+
   return (
     <div className='profile-container'>
       <Sidebar />
@@ -277,8 +242,13 @@ useEffect(() => {
                   <span className="username">{userData.facebook.username || 'Please Login !'}</span>
                 </div>
                 <div className="row">
-                  <p className="media-count">Number of Posts: <b>{userData.facebook.count_posts !== null ? userData.facebook.count_posts : 'N/A'}</b></p>
+                <p className="media-count">
+                <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} /><b>{userData.facebook.count_posts !== null ? userData.facebook.count_posts : 'N/A'}</b>
+                 <b>{userData.facebook.followers_count !== null ? userData.facebook.followers_count : 'N/A'}</b>
+                <FontAwesomeIcon icon={faUserFriends} style={{ marginLeft: '20px',marginRight: '5px' }} /> 
+                </p>
                 </div>
+               
                 <button onClick={() => setShowFacebookInput(!showFacebookInput)} className="transparent-button">
                   Update Token
                 </button>
@@ -307,8 +277,19 @@ useEffect(() => {
                         <span className="username">{userData.instagram.username || 'Please Login !'}</span>
                     </div>
                     <div className="row">
-                        <p className="media-count">Number of Posts: <b>{userData.instagram.media_count}</b></p>
+                  <span className="">{userData.instagram.biography || 'N/A'}</span>
                     </div>
+                    <div className="row">
+            <p className="media-count">
+                <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} /> 
+                <b>{userData.instagram.media_count !== null ? userData.instagram.media_count : 'N/A'}</b>   
+                
+                <FontAwesomeIcon icon={faUserFriends} style={{ marginLeft: '20px',marginRight: '5px' }} /> 
+                <b>{userData.instagram.followers_count !== null ? userData.instagram.followers_count : 'N/A'}</b>
+            </p>
+        </div>
+
+                  
                     <div className="row">
                         <p className="media-count">Account Type: <b>{userData.instagram.account_type}</b></p>
                     </div>
@@ -344,8 +325,13 @@ useEffect(() => {
                   <span className="">{userData.threads.threads_biography}</span><br/>
                 </div>
                 <div className='row'>
-                  <p className="">Number of Posts:<b>8</b></p>
-                </div>
+            <p className="media-count">
+                <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} /> 
+                <b>{userData.threads.media_count !== null ? userData.threads.media_count : 'N/A'}</b> 
+                <FontAwesomeIcon icon={faUserFriends} style={{ marginLeft: '20px', marginRight: '5px' }} />
+                <b>{userData.threads.followers_count !== null ? userData.threads.followers_count : 'N/A'}</b>
+            </p> 
+        </div>
                 <button onClick={() => setShowThreadsInput(!showThreadsInput)} className="transparent-button">
                   Update Token
                 </button>

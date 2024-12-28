@@ -79,8 +79,8 @@
       } catch (err) {
         console.error('Error fetching posts:', err);
         setError({
-          line1: "Application request limit reached.",
-          line2: "Please wait patiently for 15 minutes! (ฅ'ω'ฅ)"
+          line1: "Fetch data failed.",
+          line2: "Please enter your Access Token (ฅ'ω'ฅ)"
         });
         setDisplayedPosts([]);
       } finally {
