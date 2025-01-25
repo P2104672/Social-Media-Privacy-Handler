@@ -79,8 +79,8 @@
       } catch (err) {
         console.error('Error fetching posts:', err);
         setError({
-          line1: "Fetch data failed.",
-          line2: "Please enter your Access Token (ฅ'ω'ฅ)"
+          line1: "Not Available Now  (ฅ'ω'ฅ).",
+          // line2: "Please enter your Access Token (ฅ'ω'ฅ)"
         });
         setDisplayedPosts([]);
       } finally {
@@ -139,72 +139,117 @@
     );
   };
   
-  
   // Component for Instagram posts
-  const InstagramPosts = () => {
-    const [posts, setPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(null);
+const InstagramPosts = () => {
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-    useEffect(() => {
-      fetchInstagramPosts();
-    }, []);
+  useEffect(() => {
+    fetchInstagramPosts();
+  }, []);
 
-    const fetchInstagramPosts = async () => {
-      setIsLoading(true);
-      try {
-        const { accessToken } = await getInstagramAccessToken();
-        // need the version of the API
-        const url = `https://graph.instagram.com/v11.0/me/media?fields=id,caption,media_url,timestamp,permalink&access_token=${accessToken}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(`Instagram API error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
-        }
-
-        const data = await response.json();
-        setPosts(data.data);
-      } catch (err) {
-        console.error('Error fetching Instagram posts:', err);
-        setError(`Failed to fetch Instagram posts: ${err.message}`);
-        setPosts([]);
-      } finally {
-        setIsLoading(false);
+  const fetchInstagramPosts = async () => {
+    setIsLoading(true);
+    try {
+      const { accessToken } = await getInstagramAccessToken();
+      
+      // Fetch media
+      const mediaUrl = `https://graph.instagram.com/me/media?fields=id,caption,media_url,timestamp,permalink,is_shared_to_feed,media_type&access_token=${accessToken}`;
+      const mediaResponse = await fetch(mediaUrl);
+  
+      if (!mediaResponse.ok) {
+        const errorData = await mediaResponse.json();
+        throw new Error(`Error fetching media: ${JSON.stringify(errorData)}`);
       }
-    };
-    const formatDate = (dateString) => {
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(new Date(dateString));
-    };
-    
-    return (
-      <div className="instagram">
-        <h1 className='social-media-header'>Instagram</h1>
-          {isLoading && <div className="loader">Loading...</div>}
-          {error && <p className="error-message">{error}</p>}
-          {posts.length > 0 ? (
-  posts.map(post => (
-    <div key={post.id} className="image-card">
-      <a href={post.permalink} target="_blank" rel="noopener noreferrer">
-        <img src={post.media_url} alt="Instagram" />
-        <p className='image-caption'>{post.caption}</p>
-        <p className="post-date">{formatDate(post.timestamp)}</p>
-      </a>
-    </div>
-  ))
-) : (
-  <p className="no-results">No posts found.</p>
-)}
-      </div>
-    );
+  
+      const mediaData = await mediaResponse.json();
+      console.log('Fetched media:', mediaData); // Log fetched media
+  
+      // Fetch comments for each media item
+      const postsWithComments = await Promise.all(mediaData.data.map(async (post) => {
+        const commentsUrl = `https://graph.instagram.com/${post.id}/comments?access_token=${accessToken}`;
+        const commentsResponse = await fetch(commentsUrl);
+  
+        if (!commentsResponse.ok) {
+          const commentsErrorData = await commentsResponse.json();
+          console.error(`Error fetching comments for media ${post.id}:`, commentsErrorData);
+          return { ...post, comments: [] }; // Return post with empty comments on error
+        }
+  
+        const commentsData = await commentsResponse.json();
+        console.log(`Fetched comments for media ${post.id}:`, commentsData); // Log fetched comments
+        return {
+          ...post,
+          comments: commentsData.data || [] // Add comments to the post
+        };
+      }));
+  
+      setPosts(postsWithComments);
+    } catch (err) {
+      console.error('Error fetching Instagram posts:', err);
+      setError(`Failed to fetch Instagram posts: ${err.message}`);
+      setPosts([]);
+    } finally {
+      setIsLoading(false);
+    }
   };
+  
+  const formatDate = (dateString) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(dateString));
+  };
+  
+  return (
+    <div className="instagram">
+      <h1 className='social-media-header'>Instagram</h1>
+      {isLoading && <div className="loader">Loading...</div>}
+      {error && <p className="error-message">{error}</p>}
+      {posts.length > 0 ? (
+        posts.map(post => (
+          <div key={post.id} className="image-card">
+            <a href={post.permalink} target="_blank" rel="noopener noreferrer">
+              {post.media_type === 'VIDEO' ? (
+                <video controls width="100%">
+                  <source src={post.media_url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              ) : (
+                <img src={post.media_url} alt="Instagram" />
+              )}
+              <p className='image-caption'>{post.caption}</p>
+              <p className="post-date">{formatDate(post.timestamp)}</p>
+              <p className="shared-to-feed">
+                {post.is_shared_to_feed ? 'Shared to Feed' : ''}
+              </p>
+            </a>
+            {/* Render comments */}
+            {post.comments && post.comments.length > 0 && (
+              <div className="comments-section">
+                <h3>Comments:</h3>
+                {post.comments.map(comment => (
+                  <div key={comment.id } className="comment">
+                    <p><strong>{comment.username}</strong>: {comment.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))
+      ) : (
+        <p className="no-results">No posts found.</p>
+      )}
+    </div>
+  );
+}
 
+
+// Fetch Threads Posts
   const ThreadsPosts = () => {
       const [posts, setPosts] = useState([]);
       const [isLoading, setIsLoading] = useState(false);

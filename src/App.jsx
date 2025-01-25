@@ -4,7 +4,8 @@
 
   import {gapi} from 'gapi-script';
   import { useEffect, useState } from 'react';
- import { AuthProvider } from './context/AuthContext';
+  import { AuthProvider } from './context/AuthContext';
+
 
   import img1 from './guideimage/1.png'; 
   import img2 from './guideimage/2.png';
@@ -46,11 +47,11 @@
   const clientId = "544721700557-k663mu7847o4a1bctnuq5jh104qe982h.apps.googleusercontent.com";
 
   function App() {
-    const [isFacebookOpen, setIsFacebookOpen] = useState(false);
+    // const [isFacebookOpen, setIsFacebookOpen] = useState(false);
     const [isInstagramOpen, setIsInstagramOpen] = useState(false);
     const [isThreadsOpen, setIsThreadsOpen] = useState(false);
 
-    const toggleFacebook = () => setIsFacebookOpen(!isFacebookOpen);
+    // const toggleFacebook = () => setIsFacebookOpen(!isFacebookOpen);
     const toggleInstagram = () => setIsInstagramOpen(!isInstagramOpen);
     const toggleThreads = () => setIsThreadsOpen(!isThreadsOpen);
 
@@ -88,7 +89,6 @@
       <AuthProvider>
       <div className="app-container">
         <Sidebar />
-
         <div className="introduction">
           <h1>Social Media Privacy Handler</h1>
           <p>Welcome to the <strong>Social Media Privacy Handler</strong>!</p>
@@ -101,7 +101,8 @@
 
 
         <div className="user-guide">
-        <div className="section">
+        
+        {/* <div className="section">
           <h3 onClick={toggleFacebook} className="section-title" 
           style={{ 
             color: 'white', // Text color
@@ -137,7 +138,7 @@
               </div>
             </div>
           )}
-        </div>
+        </div> */}
         <div className="section">
           <h3 onClick={toggleInstagram} className="section-title" 
           style={{ 
@@ -210,6 +211,7 @@
           )}
         </div>
               </div>
+
         <Footer />
       </div>
       </AuthProvider>

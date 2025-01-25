@@ -45,14 +45,10 @@ useEffect(() => {
                 username: null,
                 profilePicture: null,
                 email: null,
-                count_posts: null,
-                followers_count: null, // Added followers count
-                bio: null, // Added bio
               },
             }));
           } else {
             const facebookData = await facebookResponse.json();
-            const friendsCount = facebookData.friends ? facebookData.friends.summary.total_count : 0; // Get friends count
 
             setUserData(prevState => ({
               ...prevState,
@@ -60,14 +56,12 @@ useEffect(() => {
                 username: facebookData.name,
                 profilePicture: facebookData.picture.data.url,
                 email: facebookData.email,
-                count_posts: null, // Will fetch posts count next
-                followers_count: friendsCount, // Set followers count
-                bio: facebookData.bio, // Facebook does not have a direct bio field
+               
               },
             }));
 
             // Fetch user's posts count
-            const postsResponse = await fetch(`https://graph.facebook.com/me/posts?summary=total_count&access_token=${facebookAccessToken}`);
+            const postsResponse = await fetch(`https://graph.facebook.com/me/posts?summary=count&access_token=${facebookAccessToken}`);
             if (!postsResponse.ok) {
               console.warn(`Failed to fetch user's posts count: ${postsResponse.statusText}`);
               setUserData(prevState => ({
@@ -83,7 +77,7 @@ useEffect(() => {
                 ...prevState,
                 facebook: {
                   ...prevState.facebook,
-                  count_posts: postsData.summary.total_count,
+                  count_posts: postsData.summary.count,
                 },
               }));
             }
@@ -231,7 +225,7 @@ useEffect(() => {
             {userData.facebook && (
               <li className="social-media-item">
                 <div className="social-media-name">
-                <h2 className="social-name">Facebook</h2>
+                <h2 className="social-name" style={{background:"#3b5998",color:'white'}}>Facebook</h2>
                 </div>
                 <div className="row">
                   <img 
@@ -243,9 +237,13 @@ useEffect(() => {
                 </div>
                 <div className="row">
                 <p className="media-count">
-                <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} /><b>{userData.facebook.count_posts !== null ? userData.facebook.count_posts : 'N/A'}</b>
-                 <b>{userData.facebook.followers_count !== null ? userData.facebook.followers_count : 'N/A'}</b>
+                <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} />
+                {/* <b>{userData.facebook.count_posts !== null ? userData.facebook.count_posts : 'NOT AVAILABLE'}</b> */}
+                <b>NOT AVAILABLE</b>
                 <FontAwesomeIcon icon={faUserFriends} style={{ marginLeft: '20px',marginRight: '5px' }} /> 
+                {/* <b>{userData.facebook.followers_count !== null ? userData.facebook.followers_count : 'NOT AVAILABLE'}</b> */}
+                 <b>NOT AVAILABLE</b>
+
                 </p>
                 </div>
                
@@ -267,7 +265,7 @@ useEffect(() => {
             )}
             {userData.instagram && (
                 <li className="social-media-item">
-                  <h2 className="social-name">Instagram</h2>
+                  <h2 className="social-name" style={{background:"#C13584",color:'white'}} >Instagram</h2>
                     <div className="row">
                         <img 
                             src={userData.instagram.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} 
@@ -312,7 +310,7 @@ useEffect(() => {
             )}
             {userData.threads && (
               <li className="social-media-item">
-                <h2 className="social-name">Threads</h2>
+                <div style={{background:"#262626", width:'550px', height:'50px', align:'center'}}><h2 className="social-name" style={{color:'white',align:'center'}} >Threads</h2></div>
                 <div className="row">
                   <img 
                     src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} 
@@ -322,14 +320,17 @@ useEffect(() => {
                   <span className="username">{userData.threads.username || 'Please Login !'}</span>
                 </div>
                 <div className='row'>
-                  <span className="">{userData.threads.threads_biography}</span><br/>
+                  <span className="">{userData.threads.threads_biography || 'N/A'}</span><br/>
+          
                 </div>
                 <div className='row'>
             <p className="media-count">
                 <FontAwesomeIcon icon={faFileAlt} style={{ marginRight: '5px' }} /> 
-                <b>{userData.threads.media_count !== null ? userData.threads.media_count : 'N/A'}</b> 
+                {/* <b>{userData.threads.media_count !== null ? userData.threads.media_count : 'NOT AVAILABLE'}</b>  */}
+                <b>NOT AVAILABLE</b>
                 <FontAwesomeIcon icon={faUserFriends} style={{ marginLeft: '20px', marginRight: '5px' }} />
-                <b>{userData.threads.followers_count !== null ? userData.threads.followers_count : 'N/A'}</b>
+                {/* <b>{userData.threads.followers_count !== null ? userData.threads.followers_count : 'NOT AVAILABLE'}</b> */}
+                <b>NOT AVAILABLE</b>
             </p> 
         </div>
                 <button onClick={() => setShowThreadsInput(!showThreadsInput)} className="transparent-button">

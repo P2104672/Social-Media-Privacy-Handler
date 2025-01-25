@@ -1,0 +1,106 @@
+/* General styles for the chatbox */
+.chatbox {
+    position: fixed;
+    bottom: 90px;
+    left: 250px;
+    width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background-color: #2c2c2c; /* Dark background */
+    color: #ffffff; /* White text */
+    transition: transform 0.3s ease;
+    transform: translateY(100%); /* Initially hidden */
+    z-index: 1000; /* Ensure it appears above other content */
+}
+
+.chatbox.open {
+    transform: translateY(0); /* Show the chatbox */
+}
+
+/* Styles for the toggle button */
+.caption-toggle-button {
+    position: absolute;
+    top: -50px;
+    left: 10px;
+    background: linear-gradient(135deg, #007bff, #0056b3); /* Gradient background */
+    color: white;
+    border: none;
+    border-radius: 20px; /* Rounded corners */
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.caption-toggle-button:hover {
+    background: linear-gradient(135deg, #0056b3, #004494); /* Darker gradient on hover */
+    transform: scale(1.1);
+}
+
+/* Styles for the chatbox content */
+.chatbox-content {
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Header styles */
+h4 {
+    font-size: 20px;
+    text-align: center;
+    color: #ffffff; /* White text */
+    margin-bottom: 10px;
+}
+
+/* Styles for the caption input */
+.caption-input {
+    width: 95%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #444; /* Dark border */
+    border-radius: 8px;
+    font-size: 16px;
+    resize: none; /* Prevent resizing */
+    background-color: #3a3a3a; /* Darker input background */
+    color: #ffffff; /* White text */
+}
+
+/* Styles for the enhance button */
+.enhance-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #416faa; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.enhance-button:hover {
+    background-color: #b0ccf1; /* Darker on hover */
+    transform: scale(1.05);
+}
+
+/* Styles for error messages */
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Styles for the enhanced caption display */
+.enhanced-caption {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #007bff; /* Blue border */
+    border-radius: 8px;
+    background-color: #1e1e1e; /* Darker background for enhanced caption */
+    color: #95baea; /* Blue text */
+    font-weight:500;
+}

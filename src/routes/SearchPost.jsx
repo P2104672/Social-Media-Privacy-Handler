@@ -12,6 +12,8 @@ import { getInstagramAccessToken } from '../api/instagramUtils';
 import threadsUtils from '../api/threadsUtils';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import CaptionEnhancer from '../components/CaptionEnhancer';
+import axios from 'axios';
 
 
 const SearchPost = () => {
@@ -28,7 +30,9 @@ const SearchPost = () => {
   const [snippets, setSnippets] = useState([]);
   const [notification] = useState('');
   const [isDetecting, setIsDetecting] = useState(false);
-
+  const [isAIDetecting, setIsAIDetecting] = useState(false);
+  const [DetectionCompleted, setDetectionCompleted] = useState(false);
+  const [AIDetectionCompleted, setAIDetectionCompleted] = useState(false);
   const platforms = [
     { name: 'Facebook', icon: FaFacebookF },
     { name: 'Instagram', icon: FaInstagram },
@@ -46,104 +50,216 @@ const SearchPost = () => {
   const goToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  
+  const SnippetComponent = () => {
+    const [isVisible, setIsVisible] = useState(true); 
 
-  const detectSensitiveContent = async () => {
-    setIsDetecting(true); // Set loading state to true
-
-    const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide', 'address']; // Expanded keywords
-    const warnings = [];
-    const newSnippets = [];
-    const maxLength = 50;
-
-    // Regular expressions for detecting sensitive information
-    const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-    const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
-    const phoneRegex = /(?:\+?\d{1,3})?[-. (]?(\d{1,4})[-. )]?(\d{1,4})[-. ]?(\d{1,9})/; // Basic phone number regex
-    const urlRegex = /https?:\/\/[^\s]+/; // Basic URL regex
-
-    const truncateText = (text, maxLength) => {
-        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    const toggleVisibility = () => {
+      setIsVisible(!isVisible); 
     };
 
-    // Process each post for sensitive keywords and API detection
-    for (const post of displayedPosts) {
-        const postContent = post.message || post.text || '';
-        const detectedWords = [];
+    return (
+      <div className="sensitive-snippet-container">
+        <button onClick={toggleVisibility} className="toggle-button">
+          {isVisible ? 'Hide Warnings' : 'Show Warnings'}
+        </button>
+        {isVisible && (
+          <div className="snippets">
+            {snippets.length > 0 ? (
+              snippets.map(snippet => (
+                <div key={snippet.postId} className="sensitive-snippet">
+                  <p>Snippet: {snippet.snippet}</p>
+                  <a href={`#post-${snippet.postId}`} className="view-post-link">View Full Post</a>
+                </div>
+              ))
+            ) : (
+              <p className="no-sensitive-posts">No sensitive posts available.</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
-        // Check for sensitive keywords
-        sensitiveKeywords.forEach(keyword => {
-            if (postContent.toLowerCase().includes(keyword)) {
-                detectedWords.push(keyword);
-            }
-        });
+  
+    const AIdetectSensitiveContent = async () => {
+      setIsAIDetecting(true); 
 
-        // Check for email addresses
-        if (emailRegex.test(postContent)) {
-            detectedWords.push('email address');
-        }
+      const warnings = [];
+      const newSnippets = [];
+      const maxLength = 50;
 
-        // Check for credit card numbers
-        if (creditCardRegex.test(postContent)) {
-            detectedWords.push('credit card number');
-        }
+      const truncateText = (text, maxLength) => {
+          return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+      };
 
-        // Check for phone numbers
-        if (phoneRegex.test(postContent)) {
-            detectedWords.push('phone number');
-        }
+      // Process each post for sensitive content using AI
+      for (const post of displayedPosts) {
+          const postContent = post.message || post.text || '';
+        
+          // Call the AI API to check for sensitive content
+          try {
+              const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+                  model: "anthropic/claude-3-haiku",
+                  messages: [
+                      {
+                        role: "user",
+                        content: [
+                          {
+                            type: "text",
+                            text: `Analyse the following content for sensitive topics and privacy risks. Identify any language or topics that may be harmful or inappropriate for social media audiences. If The content does not appear to contain any sensitive topics or privacy risks, skip to the next posts. '#FYP' is my project name, do not consider it as a sensitive topics. 20 words or less.: "${postContent}"`
+                          }
+                        ]
+                      }
+                  ]
+              }, {
+                headers: {
+                  'HTTP-Referer': 'https://loaclhost:3000', 
+                  'X-Title': 'Social Media Privacy Handler', 
+                  'Content-Type': 'application/json'
+              }
+              });
 
-        // Check for URLs
-        if (urlRegex.test(postContent)) {
-            detectedWords.push('URL');
-        }
+              const aiResponse = response.data.choices[0].message.content;
+              console.log('AI Response:', aiResponse); // Log the AI response
 
-        // If any sensitive content is detected, create a warning and a snippet
-        if (detectedWords.length > 0) {
-            warnings.push({
-                postId: post.id,
-                words: detectedWords,
-            });
+              // Check if the response contains the specific phrase
+              if (aiResponse.includes("does not appear") || aiResponse.includes("does not contain ") || aiResponse.includes("without")) {
+                  continue; // Skip to the next post if the phrase is found
+              }
 
-            // Create a snippet without highlighting
-            newSnippets.push({
-                postId: post.id,
-                snippet: truncateText(postContent, maxLength), // Shortened version without highlighting
-            });
-        }
+              // Process the AI response to extract warnings
+              if (aiResponse) {
+                  const detectedWords = aiResponse.split(',').map(word => word.trim());
+                  if (detectedWords.length > 0) {
+                      warnings.push({
+                          postId: post.id,
+                          words: detectedWords,
+                      });
+                      // Create a snippet without highlighting
+                      newSnippets.push({
+                          postId: post.id,
+                          snippet: truncateText(postContent, maxLength), // Shortened version without highlighting
+                      });
+                  }
+              }
+          } catch (error) {
+              console.error('Error detecting sensitive content from OpenAI API:', error);
+          }
+      }
 
-        // Call the Hugging Face API to check for negative sentiment
-        try {
-            const response = await query({ "inputs": postContent }); // Call the Hugging Face function
-            console.log('API Response:', response); // Log the API response
+      console.log('Final Warnings:', warnings); // Log final warnings
+      console.log('Final Snippets:', newSnippets); // Log final snippets
 
-            // Assuming the response format is an array of objects with label and score
-            const { label, score } = response[0]; // Adjust based on your actual response structure
-            if (label === 'NEGATIVE' && score > 0.7) { // Check for negative label and score
-                warnings.push({
-                    postId: post.id,
-                    words: ['sensitive content detected from API'],
-                });
-                newSnippets.push({
-                    postId: post.id,
-                    snippet: truncateText(postContent, maxLength),
-                });
-            }
-        } catch (error) {
-            console.error('Error detecting sensitive content from API:', error);
-        }
-    }
+      setSensitiveWarnings(warnings);
+      setSnippets(newSnippets);
+      
+      // Show a pop-up message with the completion notification
+      alert('AI Sensitive content detection completed.');
 
-    console.log('Final Warnings:', warnings); // Log final warnings
-    console.log('Final Snippets:', newSnippets); // Log final snippets
+      setIsAIDetecting(false);
+      setAIDetectionCompleted(true);
+  };
 
-    setSensitiveWarnings(warnings);
-    setSnippets(newSnippets);
-    
-    // Show a pop-up message with the completion notification
-    alert('Sensitive content detection completed.');
+    const detectSensitiveContent = async () => {
+      setIsDetecting(true); // Set loading state to true
 
-    setIsDetecting(false);
-};
+      const sensitiveKeywords = ['violence', 'hate', 'drugs', 'nudity', 'abuse', 'self-harm', 'suicide', 
+                                'address','住址','身份證','password','密碼','電話','phone number']; // Expanded keywords
+      const warnings = [];
+      const newSnippets = [];
+      const maxLength = 50;
+
+      // Regular expressions for detecting sensitive information
+      const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+      const creditCardRegex = /\b(?:\d[ -]*?){13,16}\b/;
+      const phoneRegex = /^6\d{7}$/;
+      const urlRegex = /https?:\/\/[^\s]+/; // Basic URL regex
+
+      const truncateText = (text, maxLength) => {
+          return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+      };
+
+      // Process each post for sensitive keywords and API detection
+      for (const post of displayedPosts) {
+          const postContent = post.message || post.text || '';
+          const detectedWords = [];
+
+          // Check for sensitive keywords
+          sensitiveKeywords.forEach(keyword => {
+              if (postContent.toLowerCase().includes(keyword)) {
+                  detectedWords.push(keyword);
+              }
+          });
+
+          // Check for email addresses
+          if (emailRegex.test(postContent)) {
+              detectedWords.push('email address');
+          }
+
+          // Check for credit card numbers
+          if (creditCardRegex.test(postContent)) {
+              detectedWords.push('credit card number');
+          }
+
+          // Check for phone numbers
+          if (phoneRegex.test(postContent)) {
+              detectedWords.push('phone number');
+          }
+
+          // Check for URLs
+          if (urlRegex.test(postContent)) {
+              detectedWords.push('URL');
+          }
+
+          // If any sensitive content is detected, create a warning and a snippet
+          if (detectedWords.length > 0) {
+              warnings.push({
+                  postId: post.id,
+                  words: detectedWords,
+              });
+
+              // Create a snippet without highlighting
+              newSnippets.push({
+                  postId: post.id,
+                  snippet: truncateText(postContent, maxLength),
+              });
+          }
+
+          // Call the Hugging Face API to check for negative sentiment
+          try {
+              const response = await query({ "inputs": postContent }); // Call the Hugging Face function
+              console.log('Hugging Face API Response:', response); // Log the API response
+
+              // Assuming the response format is an array of objects with label and score
+              const { label, score } = response[0]; // Adjust based on your actual response structure
+              if (label == '1 star' && score == 0.4831047058105469) { // Check for negative label and score
+                  warnings.push({
+                      postId: post.id,
+                      words: ['This post may convey negative emotions.'],
+                  });
+                  newSnippets.push({
+                      postId: post.id,
+                      snippet: truncateText(postContent, maxLength),
+                  });
+              }
+          } catch (error) {
+              console.error('Error detecting sensitive content from Hugging Face API:', error);
+          }
+      }
+
+      console.log('Final Warnings:', warnings); // Log final warnings
+      console.log('Final Snippets:', newSnippets); // Log final snippets
+
+      setSensitiveWarnings(warnings);
+      setSnippets(newSnippets);
+      
+      // Show a pop-up message with the completion notification
+      alert('Sensitive content detection completed.');
+
+      setIsDetecting(false);
+      setDetectionCompleted(true);
+  };
 
 // Hugging Face query function
 async function query(data) {
@@ -151,7 +267,6 @@ async function query(data) {
         "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
         {
             headers: {
-                Authorization: "Bearer 1", // Replace with your actual token
                 "Content-Type": "application/json",
             },
             method: "POST",
@@ -163,44 +278,83 @@ async function query(data) {
 }
 
 const exportSensitivePostsReport = () => {
-    const doc = new jsPDF();
+  const doc = new jsPDF();
 
-    const columns = [
-      { header: 'PostID', dataKey: 'postId' },
-      { header: 'Platform', dataKey: 'platform' },
-      { header: 'Message', dataKey: 'message' },
-      { header: 'Created Time', dataKey: 'created_time' },
-      { header: 'Warnings', dataKey: 'detected_warnings' },
-    ];
+  const columns = [
+    { header: 'Platform', dataKey: 'platform' },
+    { header: 'Message', dataKey: 'message' },
+    { header: 'Warnings', dataKey: 'detected_warnings' },
+  ];
 
-    const reportData = sensitiveWarnings.map(warning => {
-      const post = displayedPosts.find(post => post.id === warning.postId);
-      return {
-        postId: post.id,
-        platform: post.platform,
-        message: post.message || post.text,
-        created_time: post.created_time,
-        detected_warnings: warning.words.join(', ')
-      };
-    });
-
-    doc.setFontSize(18);
-    doc.text('Sensitive Posts Report', 14, 22);
-    doc.autoTable(columns, reportData, { startY: 30 });
-
-    const saveReport = () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-      const formattedDate = `${year}-${month}-${day}`;
-      const filename = `sensitive_posts_report_${formattedDate}.pdf`;
-      doc.save(filename);
-      alert(`Report saved as: ${filename}`);
+  const reportData = sensitiveWarnings.map(warning => {
+    const post = displayedPosts.find(post => post.id === warning.postId);
+    return {
+      platform: post.platform,
+      message: post.message || post.text,
+      detected_warnings: warning.words.join(', ')
     };
+  });
 
-    saveReport();
+  doc.setFontSize(12);
+  doc.text('Sensitive Posts Report', 14, 22);
+  doc.autoTable(columns, reportData, { startY: 30 });
+
+  const saveReport = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const filename = `sensitive_posts_report_${formattedDate}.pdf`;
+    doc.save(filename);
+    alert(`Report saved as: ${filename}`);
   };
+
+  // Show toast notification
+    
+
+
+  saveReport();
+};
+
+const exportAISensitivePostsReport = () => {
+  const doc = new jsPDF();
+
+  const columns = [
+    { header: 'Platform', dataKey: 'platform' },
+    { header: 'Message', dataKey: 'message' },
+    { header: 'Warnings', dataKey: 'detected_warnings' },
+  ];
+
+  const reportData = sensitiveWarnings.map(warning => {
+    const post = displayedPosts.find(post => post.id === warning.postId);
+    return {
+      platform: post.platform,
+      message: post.message || post.text,
+      detected_warnings: warning.words.join(', ')
+    };
+  });
+
+  doc.setFontSize(12);
+  doc.text('Sensitive Posts Report', 14, 22);
+  doc.autoTable(columns, reportData, { startY: 30 });
+
+  const saveReport = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const filename = `AI_sensitive_posts_report_${formattedDate}.pdf`;
+    doc.save(filename);
+    alert(`Report saved as: ${filename}`);
+  };
+
+  saveReport();
+};
+
+
+
 
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -402,6 +556,7 @@ const exportSensitivePostsReport = () => {
   return (
     <div className="searchpost-container">
       <Sidebar />
+      <CaptionEnhancer/>
       <div className="main-content">
         <h1 className="search-title">Search Posts</h1>
         <div className="search-controls">
@@ -454,25 +609,27 @@ const exportSensitivePostsReport = () => {
         <button onClick={detectSensitiveContent} className="detect-button">
           {isDetecting ? 'Detecting...' : 'Detect Sensitive Content'}
         </button>
-        { !isDetecting && snippets.length > 0 && (
+        { !isDetecting && DetectionCompleted && snippets.length > 0 && (
           <button onClick={exportSensitivePostsReport} className="export-button" title="Export Sensitive Posts Report">
             <FontAwesomeIcon icon={faFileExport} />
           </button>
         )}
         {notification && <div className="notification">{notification}</div>}
         
-        <div className="sensitive-snippet-container">
-        {snippets.length > 0 ? (
-            snippets.map(snippet => (
-                <div key={snippet.postId} className="sensitive-snippet">
-                    <p>Snippet: {snippet.snippet}</p>
-                    <a href={`#post-${snippet.postId}`} className="view-post-link">View Full Post</a>
-                </div>
-            ))
-        ) : (
-            <p className="no-sensitive-posts">No sensitive posts available.</p>
+        <SnippetComponent />
+
+        <button onClick={AIdetectSensitiveContent} className="detect-button">
+          {isAIDetecting ? 'AI is Detecting...' : 'AI Detect Sensitive Content'}
+        </button>
+        { !isAIDetecting && AIDetectionCompleted && snippets.length > 0 && (
+            <button onClick={exportAISensitivePostsReport} className="export-button" title="Export AI Sensitive Posts Report">
+                <FontAwesomeIcon icon={faFileExport} />
+            </button>
         )}
-    </div>
+        {notification && <div className="notification">{notification}</div>}
+        
+        <SnippetComponent />
+
         <br />
         <div className="search-results-container">
           {isLoading && <div className="loader">Loading...</div>}
@@ -485,7 +642,7 @@ const exportSensitivePostsReport = () => {
                   style={{ backgroundColor: getPlatformColor(post.platform), color: 'white', padding: '5px', borderRadius: '5px' }} // Apply styles here
                 >
             {post.platform}
-        </p> {/* The platform Label*/} {/* The platform Label*/}
+        </p> 
                 <a 
                   href={post.permalink} 
                   target="_blank" 
@@ -508,7 +665,7 @@ const exportSensitivePostsReport = () => {
                   .filter(warning => warning.postId === post.id)
                   .map(warning => (
                     <div key={warning.postId} className="sensitive-warning">
-                      <p>Warning: Sensitive content detected - {warning.words.join(', ')}</p>
+                      <p>Warning!! Sensitive content detected:  {warning.words.join(', ')}</p>
                     </div>
                 ))}
               </div>
@@ -522,6 +679,7 @@ const exportSensitivePostsReport = () => {
       <button onClick={goToTop} className="go-to-top-button" aria-label="Go to top">
         <FontAwesomeIcon icon={faArrowUp} className="fa-lg" />
       </button>
+
       <Footer />
     </div>
   );

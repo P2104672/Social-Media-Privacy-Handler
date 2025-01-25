@@ -717,6 +717,7 @@ color: #555; /* Gray color for no results */
   font-size: 16px;
   font-weight: bold;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-right: 10px;
 }
 
 .detect-button:hover {
@@ -735,6 +736,8 @@ color: #555; /* Gray color for no results */
   font-size: 14px;
 }
 
+
+
 /* Styles for sensitive snippets */
 .sensitive-snippets {
   margin: 20px 0;
@@ -743,8 +746,6 @@ color: #555; /* Gray color for no results */
   border-radius: 8px;
 
 }
-
-/* Styles for the container of sensitive snippets */
 .sensitive-snippet-container {
   position: fixed; /* Fixed position for the container */
   bottom: 200px; /* Distance from the bottom */
@@ -753,6 +754,11 @@ color: #555; /* Gray color for no results */
   flex-direction: column; /* Stack snippets vertically */
   gap: 10px; /* Space between snippets */
   z-index: 10; /* Ensure it appears above other content */
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 650px; /* Set a maximum height for the container */
+  padding: 10px; /* Optional: Add some padding */
+  border-radius: 5px; /* Optional: Rounded corners for the container */
+  scrollbar-color: transparent;
 }
 
 /* Styles for each sensitive snippet */
@@ -825,6 +831,27 @@ color: #555; /* Gray color for no results */
 
 .highlight {
   background-color: yellow; /* or any other styling */
+}
+
+.alert {
+  padding: 20px;
+  background-color: #f44336;
+  color: white;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
 }
 
 /* Responsive Layout for smaller screens */
