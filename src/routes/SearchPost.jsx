@@ -14,7 +14,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import CaptionEnhancer from '../components/CaptionEnhancer';
 import axios from 'axios';
-
+import PropTypes from 'prop-types';
 
 const SearchPost = () => {
   const [allPosts, setAllPosts] = useState([]);
@@ -33,6 +33,11 @@ const SearchPost = () => {
   const [isAIDetecting, setIsAIDetecting] = useState(false);
   const [DetectionCompleted, setDetectionCompleted] = useState(false);
   const [AIDetectionCompleted, setAIDetectionCompleted] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false); // State to manage popup visibility
+  const [popupText, setPopupText] = useState("Copy"); // State for popup text
+  const [popupX, setPopupX] = useState(0); // State for popup x-coordinate
+  const [popupY, setPopupY] = useState(0);
+
   const platforms = [
     { name: 'Facebook', icon: FaFacebookF },
     { name: 'Instagram', icon: FaInstagram },
@@ -51,36 +56,102 @@ const SearchPost = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
   
+  
+  const handleMouseEnter = (event) => {
+    const { clientX, clientY } = event;
+    setPopupX(clientX + 10); // Set x-coordinate (offset by 10 pixels)
+    setPopupY(clientY + 10); // Set y-coordinate (offset by 10 pixels)
+    setPopupText("Copy"); // Set popup text to "Copy"
+    setPopupVisible(true); // Show the popup
+};
+
+const handleMouseLeave = () => {
+    setPopupVisible(false); // Hide the popup
+};
+
+const handleCopy = (textToCopy, event) => {
+    navigator.clipboard.writeText(textToCopy) // Copy to clipboard
+        .then(() => {
+            const { clientX, clientY } = event;
+            setPopupX(clientX + 10); // Set x-coordinate (offset by 10 pixels)
+            setPopupY(clientY + 10); // Set y-coordinate (offset by 10 pixels)
+            setPopupText("Copied"); // Change popup text to "Copied"
+            setTimeout(() => {
+                setPopupVisible(false); // Hide the popup after 2 seconds
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Failed to copy: ', err); // Handle errors
+        });
+};
+
+const CopyPopup = ({ message, visible, x, y }) => {
+  if (!visible) return null; // Don't render if not visible
+
+  return (
+      <div 
+          className="copy-popup" 
+          style={{ left: x, top: y, position: 'fixed' }} // Position the popup using x and y coordinates
+      >
+          {message}
+      </div>
+  );
+};
+
+// Define prop types for CopyPopup
+CopyPopup.propTypes = {
+  message: PropTypes.string.isRequired,
+  visible: PropTypes.bool.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+};
+// Define prop types for CopyPopup
+CopyPopup.propTypes = {
+  message: PropTypes.string.isRequired,
+  visible: PropTypes.bool.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+};
+
   const SnippetComponent = () => {
     const [isVisible, setIsVisible] = useState(true); 
 
     const toggleVisibility = () => {
-      setIsVisible(!isVisible); 
+        setIsVisible(!isVisible); 
     };
 
     return (
-      <div className="sensitive-snippet-container">
-        <button onClick={toggleVisibility} className="toggle-button">
-          {isVisible ? 'Hide Warnings' : 'Show Warnings'}
-        </button>
-        {isVisible && (
-          <div className="snippets">
-            {snippets.length > 0 ? (
-              snippets.map(snippet => (
-                <div key={snippet.postId} className="sensitive-snippet">
-                  <p>Snippet: {snippet.snippet}</p>
-                  <a href={`#post-${snippet.postId}`} className="view-post-link">View Full Post</a>
+        <div className="sensitive-snippet-container">
+            <button onClick={toggleVisibility} className="toggle-button">
+                {isVisible ? 'Hide Warnings' : 'Show Warnings'}
+            </button>
+            {isVisible && (
+                <div className="snippets">
+                    {snippets.length > 0 ? (
+                        snippets.map(snippet => (
+                            <div key={snippet.postId} className="sensitive-snippet" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px' }}>
+                                <div  className="snippet-platform" style={{ flex: 0.5, backgroundColor: getPlatformColor(snippet.platform), color: 'white', padding: '5px', borderRadius: '5px' }}>
+                                    {snippet.platform}
+                                </div>
+                                <div style={{ flex: 2, padding: '5px' }}>
+                                    {snippet.snippet}
+                                </div>
+                                <div style={{ flex: 0.5, textAlign: 'right' }}>
+                                    <a href={`#post-${snippet.postId}`} className="view-post-link">View Post</a>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="no-sensitive-posts">No sensitive posts available.</p>
+                    )}
                 </div>
-              ))
-            ) : (
-              <p className="no-sensitive-posts">No sensitive posts available.</p>
             )}
-          </div>
-        )}
-      </div>
+        </div>
     );
-  };
+};
 
+
+// Ensure to update the snippets in both detectSensitiveContent and AIdetectSensitiveContent functions
   
     const AIdetectSensitiveContent = async () => {
       setIsAIDetecting(true); 
@@ -107,13 +178,14 @@ const SearchPost = () => {
                         content: [
                           {
                             type: "text",
-                            text: `Analyse the following content for sensitive topics and privacy risks. Identify any language or topics that may be harmful or inappropriate for social media audiences. If The content does not appear to contain any sensitive topics or privacy risks, skip to the next posts. '#FYP' is my project name, do not consider it as a sensitive topics. 20 words or less.: "${postContent}"`
+                            text: `Use 20 words or less to analyze the content for sensitive topics, inappropriate contents and reputation harm. Identify inappropriate language or issues for social media audiences. '#FYP' is my project name, do not consider it as a sensitive topics.: "${postContent}"`
                           }
                         ]
                       }
                   ]
               }, {
                 headers: {
+                  'Authorization': ` `, 
                   'HTTP-Referer': 'https://loaclhost:3000', 
                   'X-Title': 'Social Media Privacy Handler', 
                   'Content-Type': 'application/json'
@@ -124,7 +196,7 @@ const SearchPost = () => {
               console.log('AI Response:', aiResponse); // Log the AI response
 
               // Check if the response contains the specific phrase
-              if (aiResponse.includes("does not appear") || aiResponse.includes("does not contain ") || aiResponse.includes("without")) {
+              if (aiResponse.includes("does not appear") || aiResponse.includes("does not ") || aiResponse.includes("without") || aiResponse.includes("No")) {
                   continue; // Skip to the next post if the phrase is found
               }
 
@@ -139,7 +211,8 @@ const SearchPost = () => {
                       // Create a snippet without highlighting
                       newSnippets.push({
                           postId: post.id,
-                          snippet: truncateText(postContent, maxLength), // Shortened version without highlighting
+                          snippet: truncateText(postContent, maxLength),
+                          platform: post.platform
                       });
                   }
               }
@@ -160,6 +233,99 @@ const SearchPost = () => {
       setIsAIDetecting(false);
       setAIDetectionCompleted(true);
   };
+
+  const AIPopupMessage = ({ message, visible }) => {
+    if (!visible) return null; // Don't render if not visible
+
+    return (
+        <div className="popup-message">
+            {message}
+        </div>
+    );
+};
+
+// Define prop types for PopupMessage
+AIPopupMessage.propTypes = {
+    message: PropTypes.string.isRequired,
+    visible: PropTypes.bool.isRequired, 
+};
+
+const AIDetectButtonWithPopup = ({ isAIDetecting, onClick, buttonText }) => {
+  const [showAIPopup, setShowAIPopup] = useState(false);
+
+  const handleMouseEnter = () => {
+      setShowAIPopup(true);
+  };
+
+  const handleMouseLeave = () => {
+      setShowAIPopup(false);
+  };
+
+  return (
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+              onClick={onClick}
+              className="detect-button"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+          >
+              {isAIDetecting ? 'AI is Detecting...' : buttonText}
+          </button>
+          <PopupMessage 
+              message="Click to use AI for detecting sensitive content." 
+              visible={showAIPopup} 
+          />
+      </div>
+  );
+};
+
+// Define prop types for DetectButtonWithPopup
+AIDetectButtonWithPopup.propTypes = {
+  isAIDetecting: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+  buttonText: PropTypes.string.isRequired,
+};
+
+const exportAISensitivePostsReport = () => {
+  const doc = new jsPDF();
+
+  const columns = [
+    { header: 'Platform', dataKey: 'platform' },
+    { header: 'Message', dataKey: 'message' },
+    { header: 'Warnings', dataKey: 'detected_warnings' },
+  ];
+
+  const reportData = sensitiveWarnings.map(warning => {
+    const post = displayedPosts.find(post => post.id === warning.postId);
+    return {
+      platform: post.platform,
+      message: post.message || post.text,
+      detected_warnings: warning.words.join(', ')
+    };
+  });
+
+  doc.setFontSize(12);
+  doc.text('Sensitive Posts Report', 14, 22);
+  doc.autoTable(columns, reportData, { startY: 30 });
+
+  const saveReport = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const filename = `AI_sensitive_posts_report_${formattedDate}.pdf`;
+    doc.save(filename);
+    alert(`Report saved as: ${filename}`);
+  };
+
+  saveReport();
+};
+
+
+
+
+
 
     const detectSensitiveContent = async () => {
       setIsDetecting(true); // Set loading state to true
@@ -223,6 +389,7 @@ const SearchPost = () => {
               newSnippets.push({
                   postId: post.id,
                   snippet: truncateText(postContent, maxLength),
+                  platform: post.platform
               });
           }
 
@@ -261,21 +428,80 @@ const SearchPost = () => {
       setDetectionCompleted(true);
   };
 
+  //Popup message
+  const PopupMessage = ({ message, visible }) => {
+    if (!visible) return null; // Don't render if not visible
+
+    return (
+        <div className="popup-message">
+            {message}
+        </div>
+    );
+};
+
+// Define prop types for PopupMessage
+PopupMessage.propTypes = {
+    message: PropTypes.string.isRequired,
+    visible: PropTypes.bool.isRequired, 
+};
+
+const DetectButtonWithPopup = ({ isDetecting, onClick, buttonText }) => {
+  const [showPopup, setShowPopup] = useState(false);
+
+  const handleMouseEnter = () => {
+      setShowPopup(true);
+  };
+
+  const handleMouseLeave = () => {
+      setShowPopup(false);
+  };
+
+  const message = "If any keywords are found in the content, the post will be flagged as containing sensitive content.\n\n * Keywords: Address, ID, password, phone number.";
+
+  return (
+      <div style={{ position: 'relative', display: 'inline-block' }}>
+          <button
+              onClick={onClick}
+              className="detect-button"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+          >
+              {isDetecting ? 'Detecting...' : buttonText}
+          </button>
+          <PopupMessage 
+              message={message} 
+              visible={showPopup} 
+          />
+      </div>
+  );
+};
+
+// Define prop types for DetectButtonWithPopup
+DetectButtonWithPopup.propTypes = {
+  isDetecting: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+  buttonText: PropTypes.string.isRequired,
+};
+
 // Hugging Face query function
 async function query(data) {
     const response = await fetch(
         "https://api-inference.huggingface.co/models/nlptown/bert-base-multilingual-uncased-sentiment",
         {
             headers: {
+                
                 "Content-Type": "application/json",
             },
             method: "POST",
             body: JSON.stringify(data),
+            Authorization: " ", 
         }
     );
     const result = await response.json();
     return result;
 }
+
+
 
 const exportSensitivePostsReport = () => {
   const doc = new jsPDF();
@@ -313,42 +539,6 @@ const exportSensitivePostsReport = () => {
   // Show toast notification
     
 
-
-  saveReport();
-};
-
-const exportAISensitivePostsReport = () => {
-  const doc = new jsPDF();
-
-  const columns = [
-    { header: 'Platform', dataKey: 'platform' },
-    { header: 'Message', dataKey: 'message' },
-    { header: 'Warnings', dataKey: 'detected_warnings' },
-  ];
-
-  const reportData = sensitiveWarnings.map(warning => {
-    const post = displayedPosts.find(post => post.id === warning.postId);
-    return {
-      platform: post.platform,
-      message: post.message || post.text,
-      detected_warnings: warning.words.join(', ')
-    };
-  });
-
-  doc.setFontSize(12);
-  doc.text('Sensitive Posts Report', 14, 22);
-  doc.autoTable(columns, reportData, { startY: 30 });
-
-  const saveReport = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-    const filename = `AI_sensitive_posts_report_${formattedDate}.pdf`;
-    doc.save(filename);
-    alert(`Report saved as: ${filename}`);
-  };
 
   saveReport();
 };
@@ -559,6 +749,8 @@ const exportAISensitivePostsReport = () => {
       <CaptionEnhancer/>
       <div className="main-content">
         <h1 className="search-title">Search Posts</h1>
+     {/* Search Bar Begin*/}
+     <div>
         <div className="search-controls">
           <input
             type="text"
@@ -605,22 +797,27 @@ const exportAISensitivePostsReport = () => {
             </button>
           ))}
         </div>
+        {/* Search Bar End*/}
+      </div>
+
         <br />
-        <button onClick={detectSensitiveContent} className="detect-button">
-          {isDetecting ? 'Detecting...' : 'Detect Sensitive Content'}
-        </button>
+        <DetectButtonWithPopup 
+                isDetecting={isDetecting} 
+                onClick={detectSensitiveContent} 
+                buttonText="Detect Sensitive Content" 
+            />
         { !isDetecting && DetectionCompleted && snippets.length > 0 && (
           <button onClick={exportSensitivePostsReport} className="export-button" title="Export Sensitive Posts Report">
             <FontAwesomeIcon icon={faFileExport} />
           </button>
         )}
         {notification && <div className="notification">{notification}</div>}
-        
-        <SnippetComponent />
 
-        <button onClick={AIdetectSensitiveContent} className="detect-button">
-          {isAIDetecting ? 'AI is Detecting...' : 'AI Detect Sensitive Content'}
-        </button>
+        <AIDetectButtonWithPopup 
+                isAIDetecting={isAIDetecting} 
+                onClick={AIdetectSensitiveContent} 
+                buttonText="AI Detect Sensitive Content" 
+            />
         { !isAIDetecting && AIDetectionCompleted && snippets.length > 0 && (
             <button onClick={exportAISensitivePostsReport} className="export-button" title="Export AI Sensitive Posts Report">
                 <FontAwesomeIcon icon={faFileExport} />
@@ -642,14 +839,22 @@ const exportAISensitivePostsReport = () => {
                   style={{ backgroundColor: getPlatformColor(post.platform), color: 'white', padding: '5px', borderRadius: '5px' }} // Apply styles here
                 >
             {post.platform}
-        </p> 
-                <a 
+                </p> 
+                        
+                <p 
+                    className="post-message" 
+                    onMouseEnter={handleMouseEnter} // Show popup on mouse enter
+                    onMouseLeave={handleMouseLeave} // Hide popup on mouse leave
+                    onClick={(event) => handleCopy(post.message || post.text, event)} // Pass the event to handleCopy
+                >
+                    {post.message || post.text}
+                </p>
+                  <a 
                   href={post.permalink} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="post-link"
                 >
-                  <p className="post-message">{post.message || post.text}</p>
                   {post.platform === 'Facebook' && post.attachments && post.attachments.data && post.attachments.data.map(attachment => (
                     <img key={attachment.media.id} src={attachment.media.image.src} alt="Post attachment" className="post-image" />
                   ))}
@@ -679,7 +884,12 @@ const exportAISensitivePostsReport = () => {
       <button onClick={goToTop} className="go-to-top-button" aria-label="Go to top">
         <FontAwesomeIcon icon={faArrowUp} className="fa-lg" />
       </button>
-
+      <CopyPopup 
+                message={popupText} 
+                visible={popupVisible} 
+                x={popupX} 
+                y={popupY} 
+            />
       <Footer />
     </div>
   );

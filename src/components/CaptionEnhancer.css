@@ -103,4 +103,5 @@ h4 {
     background-color: #1e1e1e; /* Darker background for enhanced caption */
     color: #95baea; /* Blue text */
     font-weight:500;
+    height: auto;
 }

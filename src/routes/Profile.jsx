@@ -225,7 +225,7 @@ useEffect(() => {
             {userData.facebook && (
               <li className="social-media-item">
                 <div className="social-media-name">
-                <h2 className="social-name" style={{background:"#3b5998",color:'white'}}>Facebook</h2>
+                <div className="profile-box" style={{background:"#3b5998"}}><h2 className="social-name" style={{color:'white'}}>Facebook</h2></div>
                 </div>
                 <div className="row">
                   <img 
@@ -265,7 +265,7 @@ useEffect(() => {
             )}
             {userData.instagram && (
                 <li className="social-media-item">
-                  <h2 className="social-name" style={{background:"#C13584",color:'white'}} >Instagram</h2>
+                    <div className="profile-box" style={{background:"#C13584"}}><h2 className="social-name" style={{color:'white'}} >Instagram</h2></div>
                     <div className="row">
                         <img 
                             src={userData.instagram.profile_picture_url || 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png'} 
@@ -310,7 +310,7 @@ useEffect(() => {
             )}
             {userData.threads && (
               <li className="social-media-item">
-                <div style={{background:"#262626", width:'550px', height:'50px', align:'center'}}><h2 className="social-name" style={{color:'white',align:'center'}} >Threads</h2></div>
+                <div className="profile-box" style={{background:"#262626"}}><h2 className="social-name" style={{color:'white',align:'center'}} >Threads</h2></div>
                 <div className="row">
                   <img 
                     src={userData.threads.profilePicture || 'https://upload.wikimedia.org/wikipedia/commons/d/db/Threads_%28app%29.png'} 

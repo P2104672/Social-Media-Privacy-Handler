@@ -3,7 +3,7 @@
 
 
 
-let instagramAccessToken = '1';
+let instagramAccessToken = ' ';
 
 export const getInstagramAccessToken = async () => {
     try {

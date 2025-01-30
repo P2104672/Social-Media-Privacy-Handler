@@ -30,7 +30,7 @@ const CaptionEnhancer = () => {
 
             }, {
                 headers: {
-                   'Authorization': `Bearer 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`, // Replace with your OpenRouter API key
+                        'Authorization': ``, // Replace with your OpenRouter API key
                         'HTTP-Referer': 'https://loaclhost:3000', // Replace with your site URL
                         'X-Title': 'Social Media Privacy Handler', // Replace with your site name
                         'Content-Type': 'application/json'

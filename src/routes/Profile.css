@@ -107,13 +107,22 @@
   transition: transform 0.2s; /* Smooth hover effect */
 }
 
+.profile-box{
+   width: 500px;
+   height: 40px;
+   align-items: center; 
+   justify-content: center;
+   display: flex;
+   margin-bottom: 20px;
+
+}
 .social-media-item:hover {
   transform: translateY(-3px); /* Lift effect on hover */
 }
 
 .row {
   display: flex;
-  align-items: center; /* Center items vertically */
+  align-items: center; 
   margin-bottom: 10px; /* Space between rows */
 }
 

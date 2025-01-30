@@ -1,7 +1,7 @@
 // threadsUtils.js
 import axios from 'axios';
 
-let accessToken = '1';
+let accessToken = ' ';
 
 const threadsUtils = {
   setAccessToken: (newToken) => {
